@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/
+checkpoints/
+outputs/
+*.keras
+*.h5
+.DS_Store
+kaggle.json
