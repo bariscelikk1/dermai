@@ -65,10 +65,12 @@ CLASS_INFO = {
     },
 }
 
-ROOT = Path(__file__).resolve().parent
-STATIC = ROOT / "static"
+ROOT = Path(__file__).resolve().parent.parent
+# Static pages live in public/ so Vercel's CDN serves them directly; only
+# /api/* reaches this process. Locally, uvicorn serves them from the same dir.
+STATIC = ROOT / "public"
 MODEL_PATH = Path(
-    os.environ.get("DERMAI_MODEL", ROOT.parent / "models" / "best_model_ft.keras")
+    os.environ.get("DERMAI_MODEL", ROOT / "models" / "best_model_ft.keras")
 )
 
 app = FastAPI(title="DermAI")

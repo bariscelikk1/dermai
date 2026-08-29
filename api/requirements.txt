@@ -1,0 +1,9 @@
+# Inference-only dependencies for the deployed function.
+# The training requirements (pandas, scikit-learn, matplotlib, seaborn,
+# kaggle) are in the repository root requirements.txt and are not needed
+# to serve predictions.
+tensorflow-cpu>=2.19
+fastapi>=0.110
+python-multipart>=0.0.9
+pillow>=10.0
+numpy>=1.26
