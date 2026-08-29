@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>References — DermAI</title>
+<meta name="description" content="Bibliography of clinical, epidemiological and machine learning sources underpinning the DermAI project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 06</p>
+    <h1>References</h1>
+    <p class="hero-lede">
+      Sources for every quantitative claim made across this site, grouped by
+      domain. Where a specific figure is used elsewhere on the site, the entry
+      records which figure it supports.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">References</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#dataset">Dataset</a></li>
+      <li><a href="#ml">Machine learning method</a></li>
+      <li><a href="#derm-ai">AI in dermatology</a></li>
+      <li><a href="#epi">Epidemiology</a></li>
+      <li><a href="#dermoscopy">Dermoscopy</a></li>
+      <li><a href="#cite">Citing this project</a></li>
+    </ol>
+    <div class="sidebar-note">
+      <p>
+        Figures attributed to secondary summaries are marked as such. Anyone
+        relying on a number for their own work should consult the primary
+        publication.
+      </p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <section id="dataset" class="step">
+      <p class="eyebrow">6.1</p>
+      <h2>Dataset</h2>
+      <ol class="bib">
+        <li>
+          <p class="bib-cite">
+            Tschandl, P., Rosendahl, C. &amp; Kittler, H. (2018).
+            <em>The HAM10000 dataset, a large collection of multi-source
+            dermatoscopic images of common pigmented skin lesions.</em>
+            Scientific Data, 5, 180161.
+          </p>
+          <p class="bib-meta">
+            doi:10.1038/sdata.2018.161 ·
+            <a href="https://www.nature.com/articles/sdata2018161" target="_blank" rel="noopener">Nature</a> ·
+            <a href="https://arxiv.org/abs/1803.10417" target="_blank" rel="noopener">arXiv:1803.10417</a>
+          </p>
+          <p class="bib-use">Supports: dataset composition, 10,015 images, seven diagnostic categories, class counts, and the 58:1 imbalance ratio.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="ml" class="step">
+      <p class="eyebrow">6.2</p>
+      <h2>Machine learning method</h2>
+      <ol class="bib" start="2">
+        <li>
+          <p class="bib-cite">
+            Kumar, A., Raghunathan, A., Jones, R., Ma, T. &amp; Liang, P. (2022).
+            <em>Fine-Tuning can Distort Pretrained Features and Underperform
+            Out-of-Distribution.</em> International Conference on Learning
+            Representations (ICLR), Oral.
+          </p>
+          <p class="bib-meta">
+            <a href="https://arxiv.org/abs/2202.10054" target="_blank" rel="noopener">arXiv:2202.10054</a> ·
+            <a href="https://openreview.net/forum?id=UYneFzXSJWh" target="_blank" rel="noopener">OpenReview</a>
+          </p>
+          <p class="bib-use">Supports: the LP-FT protocol; the reported result that across ten distribution-shift datasets fine-tuning averaged 2% higher in-distribution but 7% lower out-of-distribution accuracy than linear probing.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Tan, M. &amp; Le, Q. V. (2019). <em>EfficientNet: Rethinking Model
+            Scaling for Convolutional Neural Networks.</em> International
+            Conference on Machine Learning (ICML).
+          </p>
+          <p class="bib-meta">
+            <a href="https://arxiv.org/abs/1905.11946" target="_blank" rel="noopener">arXiv:1905.11946</a>
+          </p>
+          <p class="bib-use">Supports: the backbone architecture and its compound-scaling rationale.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Ioffe, S. &amp; Szegedy, C. (2015). <em>Batch Normalization:
+            Accelerating Deep Network Training by Reducing Internal Covariate
+            Shift.</em> ICML.
+          </p>
+          <p class="bib-meta">
+            <a href="https://arxiv.org/abs/1502.03167" target="_blank" rel="noopener">arXiv:1502.03167</a>
+          </p>
+          <p class="bib-use">Supports: the distinction between learnable affine parameters and running statistics that underlies the frozen-BatchNorm decision.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="derm-ai" class="step">
+      <p class="eyebrow">6.3</p>
+      <h2>Machine learning in dermatology</h2>
+      <ol class="bib" start="5">
+        <li>
+          <p class="bib-cite">
+            Esteva, A., Kuprel, B., Novoa, R. A., Ko, J., Swetter, S. M.,
+            Blau, H. M. &amp; Thrun, S. (2017). <em>Dermatologist-level
+            classification of skin cancer with deep neural networks.</em>
+            Nature, 542(7639), 115–118.
+          </p>
+          <p class="bib-meta">
+            doi:10.1038/nature21056 · PMID 28117445 ·
+            <a href="https://www.nature.com/articles/nature21056" target="_blank" rel="noopener">Nature</a>
+          </p>
+          <p class="bib-use">Supports: 129,450 clinical images across 2,032 diseases; comparison against 21 board-certified dermatologists.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Tschandl, P. et al. (2019). <em>Comparison of the accuracy of human
+            readers versus machine-learning algorithms for pigmented skin
+            lesion classification: an open, web-based, international,
+            diagnostic study.</em> The Lancet Oncology, 20(7), 938–947.
+          </p>
+          <p class="bib-meta">
+            <a href="https://www.meduniwien.ac.at/web/en/about-us/news/detailsite/2019/news-im-juni-2019/artificial-intelligence-for-the-diagnosis-of-skin-lesions-is-superior-to-humans/" target="_blank" rel="noopener">MedUni Vienna summary</a>
+          </p>
+          <p class="bib-use">Supports: 511 human readers compared against 139 algorithms from 77 laboratories, with the best algorithms outperforming human readers on the benchmark.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Tschandl, P. et al. (2020). <em>Human–computer collaboration for
+            skin cancer recognition.</em> Nature Medicine, 26, 1229–1234.
+          </p>
+          <p class="bib-meta">
+            doi:10.1038/s41591-020-0942-0 ·
+            <a href="https://www.nature.com/articles/s41591-020-0942-0" target="_blank" rel="noopener">Nature Medicine</a>
+          </p>
+          <p class="bib-use">Supports: the argument that the productive configuration is clinician-supported-by-algorithm rather than algorithm alone.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="epi" class="step">
+      <p class="eyebrow">6.4</p>
+      <h2>Epidemiology and prognosis</h2>
+      <ol class="bib" start="8">
+        <li>
+          <p class="bib-cite">
+            International Agency for Research on Cancer (2024).
+            <em>GLOBOCAN 2022: Melanoma of skin fact sheet.</em>
+            Global Cancer Observatory, World Health Organization.
+          </p>
+          <p class="bib-meta">
+            <a href="https://gco.iarc.who.int/media/globocan/factsheets/cancers/16-melanoma-of-skin-fact-sheet.pdf" target="_blank" rel="noopener">gco.iarc.who.int</a>
+          </p>
+          <p class="bib-use">Supports: 331,722 new melanoma cases and 58,667 deaths worldwide in 2022.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Salah, S. et al. (2026). <em>Analysis of global skin cancer
+            epidemiology in 2022 and correlation with dermatologist density.</em>
+            Journal of the European Academy of Dermatology and Venereology.
+          </p>
+          <p class="bib-meta">
+            <a href="https://onlinelibrary.wiley.com/doi/full/10.1111/jdv.20883" target="_blank" rel="noopener">Wiley Online Library</a>
+          </p>
+          <p class="bib-use">Supports: approximately 1.2 million non-melanoma skin cancer cases and 69,416 deaths globally in 2022; comparison of melanoma and NMSC mortality burden.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            International Agency for Research on Cancer. <em>Global burden of
+            cutaneous melanoma incidence attributable to ultraviolet
+            radiation.</em>
+          </p>
+          <p class="bib-meta">
+            <a href="https://www.iarc.who.int/news-events/new-study-on-the-global-burden-of-cutaneous-melanoma-incidence-attributable-to-ultraviolet-radiation" target="_blank" rel="noopener">iarc.who.int</a>
+          </p>
+          <p class="bib-use">Supports: more than 80% of cutaneous melanoma attributable to UV exposure — approximately 267,000 of 332,000 cases in 2022.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            American Cancer Society. <em>Survival Rates for Melanoma Skin
+            Cancer, by Stage.</em> Based on SEER programme data.
+          </p>
+          <p class="bib-meta">
+            <a href="https://www.cancer.org/cancer/types/melanoma-skin-cancer/detection-diagnosis-staging/survival-rates-for-melanoma-skin-cancer-by-stage.html" target="_blank" rel="noopener">cancer.org</a>
+          </p>
+          <p class="bib-use">Supports: five-year relative survival of &gt;99% (localized), ≈76% (regional) and ≈35% (distant). This is the central quantitative argument of the project.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            T.C. Sağlık Bakanlığı, Halk Sağlığı Genel Müdürlüğü.
+            <em>Türkiye Kanser İstatistikleri.</em>
+          </p>
+          <p class="bib-meta">
+            <a href="https://hsgm.saglik.gov.tr/depo/birimler/kanser-db/Dokumanlar/Istatistikler/Turkiye_Kanser_Istatistikleri_2020.pdf" target="_blank" rel="noopener">hsgm.saglik.gov.tr</a>
+          </p>
+          <p class="bib-use">Supports: Turkish melanoma incidence of 1.9 (men) and 1.3 (women) per 100,000; non-melanoma skin cancer incidence of 23.4 and 15.5 per 100,000; approximately 20,000 annual NMSC diagnoses.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="dermoscopy" class="step">
+      <p class="eyebrow">6.5</p>
+      <h2>Dermoscopy</h2>
+      <ol class="bib" start="13">
+        <li>
+          <p class="bib-cite">
+            Vestergaard, M. E., Macaskill, P., Holt, P. E. &amp; Menzies, S. W.
+            (2008). <em>Dermoscopy compared with naked eye examination for the
+            diagnosis of primary melanoma: a meta-analysis of studies performed
+            in a clinical setting.</em> British Journal of Dermatology,
+            159(3), 669–676.
+          </p>
+          <p class="bib-meta">
+            <a href="https://www.ncbi.nlm.nih.gov/books/NBK75341/" target="_blank" rel="noopener">DARE structured abstract, NCBI Bookshelf</a>
+          </p>
+          <p class="bib-use">Supports: relative diagnostic odds ratio of 15.6 (95% CI 2.9–83.7) for dermoscopy versus naked-eye examination in melanoma diagnosis.</p>
+        </li>
+        <li>
+          <p class="bib-cite">
+            Reiter, O. et al. (2019). <em>The diagnostic accuracy of dermoscopy
+            for basal cell carcinoma: A systematic review and meta-analysis.</em>
+            Journal of the American Academy of Dermatology.
+          </p>
+          <p class="bib-meta">
+            <a href="https://www.sciencedirect.com/science/article/abs/pii/S0190962218330986" target="_blank" rel="noopener">ScienceDirect</a>
+          </p>
+          <p class="bib-use">Supports: BCC sensitivity rising from 66.9% to 85% and specificity from 97.2% to 98.2% when dermoscopy is added to naked-eye examination; pooled dermoscopy sensitivity 91.2% and specificity 95%.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="cite" class="step">
+      <p class="eyebrow">6.6</p>
+      <h2>Citing this project</h2>
+      <p class="lede">
+        The implementation is public. If this work or its code is used, please
+        cite the source repository and, separately, the HAM10000 dataset
+        authors, whose licence requires attribution.
+      </p>
+      <pre class="code"><code>Çelik, N. B. (2026). DermAI: a seven-class dermoscopic lesion
+classifier with an LP-FT transfer learning protocol.
+Yıldız Teknik Üniversitesi, Department of Computer Engineering.
+https://github.com/bariscelikk1/dermai</code></pre>
+      <p class="code-cap">
+        Repository: <a href="https://github.com/bariscelikk1/dermai" target="_blank" rel="noopener">github.com/bariscelikk1/dermai</a>
+      </p>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/ethics.html"><span>Previous</span>Ethics &amp; Limitations</a>
+      <a class="pn next" href="/index.html"><span>Back to</span>Overview</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+</body>
+</html>

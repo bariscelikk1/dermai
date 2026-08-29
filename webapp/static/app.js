@@ -45,6 +45,51 @@ const BANDS = {
 const pct = (v) => (v * 100).toFixed(1) + "%";
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/* Downscale before upload. The model only ever sees 224x224, so sending a
+   12-megapixel phone photo wastes bandwidth — and some hosts cap request
+   bodies well below the size of a modern camera file. EXIF orientation is
+   handled server-side, so this only touches dimensions. */
+const MAX_EDGE = 1024;
+
+function downscale(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const { width: w, height: h } = img;
+      const scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+
+      // Already small enough, or an image type we would rather not re-encode.
+      if (scale === 1) {
+        URL.revokeObjectURL(url);
+        return resolve(file);
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+
+      canvas.toBlob(
+        (blob) => resolve(blob && blob.size < file.size ? blob : file),
+        "image/jpeg",
+        0.92
+      );
+    };
+
+    // If decoding fails, fall back to the original and let the server judge.
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+    img.src = url;
+  });
+}
+
 /* ── input handling ─────────────────────────────────────── */
 
 dropzone.addEventListener("click", () => fileInput.click());
@@ -94,8 +139,10 @@ async function handleFile(file) {
   frame.classList.add("scanning");
   caption.textContent = "Analysing…";
 
+  const upload = await downscale(file);
+
   const body = new FormData();
-  body.append("file", file);
+  body.append("file", upload, "lesion.jpg");
 
   // Run the real request alongside the staged pipeline display.
   const request = fetch("/api/predict", { method: "POST", body })

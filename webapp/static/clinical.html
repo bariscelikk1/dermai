@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinical Context — DermAI</title>
+<meta name="description" content="Skin cancer epidemiology worldwide and in Türkiye, the melanoma survival gradient, and the diagnostic role of dermoscopy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 01</p>
+    <h1>Clinical context</h1>
+    <p class="hero-lede">
+      Why a screening aid for pigmented lesions is worth building: the disease
+      burden, the survival gradient that makes early detection decisive, and
+      the diagnostic modality this model is trained to read.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">Clinical Context</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#burden">Global disease burden</a></li>
+      <li><a href="#survival">The survival gradient</a></li>
+      <li><a href="#turkiye">Burden in Türkiye</a></li>
+      <li><a href="#dermoscopy">Dermoscopy</a></li>
+      <li><a href="#abcde">The ABCDE criteria</a></li>
+      <li><a href="#gap">Where automation fits</a></li>
+    </ol>
+    <div class="sidebar-note">
+      <p>
+        Every figure on this page is attributed inline and listed in full on
+        the <a href="/references.html">references page</a>.
+      </p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <section id="burden" class="step">
+      <p class="eyebrow">Epidemiology</p>
+      <h2>Global disease burden</h2>
+      <p class="lede">
+        Skin cancers divide into cutaneous melanoma and the far more common
+        keratinocyte carcinomas, grouped as non-melanoma skin cancer. Melanoma
+        is the smaller category by incidence and the larger by lethality per
+        case.
+      </p>
+
+      <table class="dist dist-static">
+        <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col" class="num">New cases, 2022</th>
+            <th scope="col" class="num">Deaths, 2022</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cutaneous melanoma<span class="row-note">Arises from melanocytes; the target of this project's primary metric.</span></td>
+            <td class="num mono">331,722</td>
+            <td class="num mono">58,667</td>
+          </tr>
+          <tr>
+            <td>Non-melanoma skin cancer<span class="row-note">Predominantly basal cell and squamous cell carcinoma.</span></td>
+            <td class="num mono">≈ 1,200,000</td>
+            <td class="num mono">69,416</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="table-src">Source: GLOBOCAN 2022, International Agency for Research on Cancer (IARC/WHO).</p>
+
+      <p class="lede">
+        The comparison is instructive. Non-melanoma skin cancer produces more
+        total deaths than melanoma despite being individually far less
+        aggressive, simply because it is roughly four times as common. Both
+        categories are represented in the classification scheme used here:
+        basal cell carcinoma appears as <code>bcc</code>, and actinic keratoses
+        and intraepithelial carcinoma — precursors on the squamous pathway — as
+        <code>akiec</code>.
+      </p>
+
+      <div class="callout">
+        <p class="callout-label">Modifiable aetiology</p>
+        <p>
+          IARC attributes more than 80% of cutaneous melanoma worldwide to
+          ultraviolet radiation exposure — approximately 267,000 of the roughly
+          332,000 cases recorded in 2022. This matters for a screening
+          argument: the disease is both largely preventable and, when caught
+          early, largely curable. The dominant failure mode is late
+          presentation, not intractable biology.
+        </p>
+      </div>
+    </section>
+
+    <section id="survival" class="step">
+      <p class="eyebrow">Prognosis</p>
+      <h2>The survival gradient</h2>
+      <p class="lede">
+        The single most important quantitative fact underlying this project is
+        how sharply melanoma prognosis depends on stage at diagnosis. The
+        United States SEER programme reports five-year relative survival by
+        extent of disease as follows.
+      </p>
+
+      <div class="survival">
+        <div class="surv-row">
+          <div class="surv-label">
+            <p class="surv-stage">Localized</p>
+            <p class="surv-desc">No spread beyond the skin of origin</p>
+          </div>
+          <div class="surv-bar"><span class="surv-fill surv-good" style="width:99%"></span></div>
+          <p class="surv-val">&gt;99%</p>
+        </div>
+        <div class="surv-row">
+          <div class="surv-label">
+            <p class="surv-stage">Regional</p>
+            <p class="surv-desc">Spread to nearby structures or lymph nodes</p>
+          </div>
+          <div class="surv-bar"><span class="surv-fill surv-mid" style="width:76%"></span></div>
+          <p class="surv-val">≈76%</p>
+        </div>
+        <div class="surv-row">
+          <div class="surv-label">
+            <p class="surv-stage">Distant</p>
+            <p class="surv-desc">Metastasis to lung, liver, brain or distant nodes</p>
+          </div>
+          <div class="surv-bar"><span class="surv-fill surv-bad" style="width:35%"></span></div>
+          <p class="surv-val">≈35%</p>
+        </div>
+      </div>
+      <p class="table-src">Source: SEER programme figures as reported by the American Cancer Society.</p>
+
+      <p class="lede">
+        A patient whose melanoma is identified while localized has a near-normal
+        life expectancy with respect to that disease. The same disease
+        identified after distant metastasis carries roughly a one-in-three
+        five-year survival. The interval separating those two states is a
+        window in which a diagnosis can be made — and it is precisely that
+        window a screening aid is intended to widen.
+      </p>
+      <blockquote class="pull">
+        <p>
+          This is the entire argument for optimising recall over accuracy. The
+          cost of the two error types is separated by a factor visible in the
+          survival table above.
+        </p>
+      </blockquote>
+    </section>
+
+    <section id="turkiye" class="step">
+      <p class="eyebrow">National context</p>
+      <h2>Disease burden in Türkiye</h2>
+      <p class="lede">
+        Turkish national cancer registry figures published by the Ministry of
+        Health's General Directorate of Public Health record the following
+        age-standardised incidence rates.
+      </p>
+
+      <table class="dist dist-static">
+        <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col" class="num">Men (per 100,000)</th>
+            <th scope="col" class="num">Women (per 100,000)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Melanoma</td>
+            <td class="num mono">1.9</td>
+            <td class="num mono">1.3</td>
+          </tr>
+          <tr>
+            <td>Non-melanoma skin cancer</td>
+            <td class="num mono">23.4</td>
+            <td class="num mono">15.5</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="table-src">Source: T.C. Sağlık Bakanlığı, Halk Sağlığı Genel Müdürlüğü — Türkiye Kanser İstatistikleri.</p>
+
+      <p class="lede">
+        Approximately 20,000 people receive a non-melanoma skin cancer
+        diagnosis in Türkiye each year. Melanoma incidence is lower than in
+        northern European or Australasian populations, which is consistent with
+        the protective effect of higher average Fitzpatrick phototype — but
+        lower incidence is not lower stakes. Populations with lower baseline
+        risk often have correspondingly lower clinical suspicion, and later
+        presentation is a recognised consequence.
+      </p>
+
+      <div class="callout callout-warn">
+        <p class="callout-label">A caution on trend figures</p>
+        <p>
+          Figures circulating in the Turkish press describe a very large
+          proportional rise in melanoma incidence over recent decades. Such
+          increases are real in many registries but are confounded by improved
+          case ascertainment and registry coverage — a portion of any measured
+          rise reflects better counting rather than more disease. This project
+          does not rely on trend claims; the static incidence figures above,
+          drawn directly from the national registry, are sufficient to motivate
+          the work.
+        </p>
+      </div>
+    </section>
+
+    <section id="dermoscopy" class="step">
+      <p class="eyebrow">Modality</p>
+      <h2>Dermoscopy, and why the input distribution matters</h2>
+      <p class="lede">
+        A dermatoscope is a handheld instrument combining magnification with
+        polarised or immersion illumination. It renders subsurface structures —
+        pigment networks, streaks, globules, blue-white veils, vascular
+        patterns — that are simply not visible to the unaided eye. Every image
+        in the HAM10000 training set was acquired this way.
+      </p>
+
+      <table class="dist dist-static">
+        <thead>
+          <tr>
+            <th scope="col">Comparison</th>
+            <th scope="col">Finding</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Melanoma: dermoscopy vs naked eye</td>
+            <td>Relative diagnostic odds ratio <strong>15.6</strong> (95% CI 2.9–83.7) in favour of dermoscopy<span class="row-note">Meta-analysis of studies conducted in clinical settings.</span></td>
+          </tr>
+          <tr>
+            <td>Basal cell carcinoma: sensitivity</td>
+            <td>Rose from <strong>66.9%</strong> to <strong>85%</strong> when dermoscopy was added to naked-eye examination (P = .0001)</td>
+          </tr>
+          <tr>
+            <td>Basal cell carcinoma: specificity</td>
+            <td>Rose from <strong>97.2%</strong> to <strong>98.2%</strong> (P = .006)</td>
+          </tr>
+          <tr>
+            <td>Dermoscopy for BCC, pooled</td>
+            <td>Sensitivity <strong>91.2%</strong>, specificity <strong>95%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="table-src">Sources: Kittler et al. meta-analysis; Reiter et al. systematic review and meta-analysis. See <a href="/references.html">references</a>.</p>
+
+      <div class="callout callout-warn">
+        <p class="callout-label">Direct consequence for this system</p>
+        <p>
+          Because the model has only ever seen dermoscopic images, an ordinary
+          smartphone photograph of a mole is an <em>out-of-distribution</em>
+          input. The network will still emit a confident-looking probability
+          distribution — softmax always sums to one — but that confidence is
+          not calibrated for an input type the model never encountered in
+          training. This is the single most important practical limitation of
+          the deployed tool, and it is stated again on the
+          <a href="/analyse.html">analysis page</a> and in
+          <a href="/ethics.html">ethics</a>.
+        </p>
+      </div>
+    </section>
+
+    <section id="abcde" class="step">
+      <p class="eyebrow">Clinical criteria</p>
+      <h2>The ABCDE criteria</h2>
+      <p class="lede">
+        The mnemonic used in clinical education and public health messaging to
+        describe features raising suspicion of melanoma. It is included here
+        because it is what the network is implicitly learning to approximate
+        from pixels, and because it remains the practical guidance for anyone
+        examining their own skin.
+      </p>
+      <div class="abcde">
+        <article><span class="ab-l">A</span><div><p class="ab-t">Asymmetry</p><p class="ab-d">One half of the lesion does not mirror the other.</p></div></article>
+        <article><span class="ab-l">B</span><div><p class="ab-t">Border</p><p class="ab-d">Edges are irregular, notched, scalloped or poorly defined.</p></div></article>
+        <article><span class="ab-l">C</span><div><p class="ab-t">Colour</p><p class="ab-d">Multiple shades — browns, blacks, reds, whites or blues — within one lesion.</p></div></article>
+        <article><span class="ab-l">D</span><div><p class="ab-t">Diameter</p><p class="ab-d">Larger than about 6 mm, though melanomas can be detected smaller.</p></div></article>
+        <article><span class="ab-l">E</span><div><p class="ab-t">Evolving</p><p class="ab-d">Change over time in size, shape, colour, elevation, or new symptoms such as bleeding or itching.</p></div></article>
+      </div>
+      <p class="lede lede-tight">
+        The <strong>E</strong> criterion deserves emphasis because it is the one
+        no single-image classifier can assess. Evolution is a temporal signal;
+        this model sees one frame. A lesion that is changing warrants
+        examination regardless of what any static analysis reports.
+      </p>
+    </section>
+
+    <section id="gap" class="step">
+      <p class="eyebrow">Positioning</p>
+      <h2>Where automated analysis fits</h2>
+      <p class="lede">
+        The evidence on machine classification of pigmented lesions is
+        substantial and, on benchmark tasks, favourable. Esteva et al. trained
+        a CNN on 129,450 clinical images spanning 2,032 diseases and reported
+        performance comparable to 21 board-certified dermatologists. Tschandl
+        et al. subsequently compared 511 human readers against 139 algorithms
+        from 77 laboratories and found that the best machine classifiers
+        outperformed human readers on the benchmark.
+      </p>
+      <p class="lede">
+        Two qualifications are essential, and both are reasons this project
+        does not claim clinical utility. First, benchmark performance on
+        curated archives has repeatedly failed to transfer cleanly to
+        prospective clinical populations, where prevalence, image quality and
+        case mix all differ. Second, the same authors' later work on
+        human–computer collaboration found the productive configuration to be
+        the clinician <em>supported</em> by the algorithm — not replaced by it.
+      </p>
+      <div class="callout">
+        <p class="callout-label">The intended role</p>
+        <p>
+          A tool of this kind is best understood as a triage prior: a cheap,
+          instantaneous signal that may raise the probability someone presents
+          for examination they would otherwise have deferred. It adds a step
+          before the clinic. It removes none.
+        </p>
+      </div>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/index.html"><span>Previous</span>Overview</a>
+      <a class="pn next" href="/method.html"><span>Next</span>Method</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+</body>
+</html>

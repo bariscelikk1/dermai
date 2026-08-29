@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results — DermAI</title>
+<meta name="description" content="Evaluation protocol, primary and secondary endpoints, and guidance on interpreting reported performance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 04</p>
+    <h1>Results and evaluation</h1>
+    <p class="hero-lede">
+      The evaluation protocol, the endpoints that carry clinical meaning, and
+      an explicit account of why the headline accuracy figure is the least
+      informative number this project produces.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">Results</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#protocol">Evaluation protocol</a></li>
+      <li><a href="#endpoints">Endpoints</a></li>
+      <li><a href="#headline">Headline figures</a></li>
+      <li><a href="#perclass">Per-class report</a></li>
+      <li><a href="#confusion">Confusion matrix</a></li>
+      <li><a href="#interpretation">Interpretation</a></li>
+    </ol>
+    <div class="sidebar-note sidebar-warn">
+      <p>
+        Cells marked <em>pending</em> are populated from the output of
+        <code>dermai.evaluate</code>. They are deliberately left empty rather
+        than estimated.
+      </p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <div class="notice notice-info" role="note">
+      <p class="notice-label">Status of this page</p>
+      <p>
+        The evaluation harness is implemented and the protocol below is fixed.
+        Numerical results are reported from a single authoritative run of
+        <code>python -m dermai.evaluate</code> against the held-out validation
+        split. Any cell still showing <em>pending</em> has not yet been filled
+        from that run, and no value should be inferred for it.
+      </p>
+    </div>
+
+    <section id="protocol" class="step">
+      <p class="eyebrow">4.1</p>
+      <h2>Evaluation protocol</h2>
+      <p class="lede">
+        Evaluation is performed on the 15% validation partition described in
+        the <a href="/method.html#split">method</a>. Three properties of that
+        partition govern how the resulting numbers should be read.
+      </p>
+      <ul class="limits">
+        <li>
+          <strong>Partitioned at lesion level.</strong> No physical lesion
+          contributes images to both training and validation, so reported
+          performance is not inflated by near-duplicate leakage.
+        </li>
+        <li>
+          <strong>Natural class distribution retained.</strong> Oversampling is
+          applied to the training split only. The validation split preserves
+          the true prevalence — including melanocytic nevi at roughly
+          two-thirds of all cases — so metrics reflect the distribution a
+          deployed system would actually meet.
+        </li>
+        <li>
+          <strong>No augmentation at evaluation.</strong> The validation path
+          performs decode, resize and batch only. No flips, rotations or
+          contrast jitter are applied.
+        </li>
+      </ul>
+      <pre class="code"><code>python -m dermai.evaluate                          # uses ft_best.keras
+python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
+      <p class="code-cap">
+        Emits overall accuracy, a per-class classification report, melanoma
+        recall, and a confusion matrix serialised to
+        <code>outputs/confusion_matrix.npy</code>.
+      </p>
+    </section>
+
+    <section id="endpoints" class="step">
+      <p class="eyebrow">4.2</p>
+      <h2>Primary and secondary endpoints</h2>
+
+      <div class="endpoint endpoint-primary">
+        <p class="ep-tag">Primary endpoint</p>
+        <h3>Melanoma recall</h3>
+        <p class="ep-formula">TP<sub>mel</sub> / (TP<sub>mel</sub> + FN<sub>mel</sub>)</p>
+        <p>
+          Of all true melanomas in the validation split, the proportion the
+          model assigned to the melanoma class. This is the endpoint the
+          project optimises, on the epidemiological argument set out in the
+          <a href="/clinical.html#survival">clinical context</a>: the five-year
+          relative survival gradient from over 99% (localized) to roughly 35%
+          (distant) means a false negative and a false positive are not
+          commensurable errors.
+        </p>
+      </div>
+
+      <table class="dist dist-static">
+        <thead><tr><th scope="col">Secondary endpoint</th><th scope="col">What it captures</th><th scope="col">Why it is secondary</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Malignant-group recall</td>
+            <td>Sensitivity across <code>mel</code>, <code>bcc</code> and <code>akiec</code> treated as one positive class.</td>
+            <td>Closer to the deployed decision — the tool aggregates these three — but obscures which malignancy was detected.</td>
+          </tr>
+          <tr>
+            <td>Macro-averaged F1</td>
+            <td>Balanced performance across all seven classes, weighting each equally regardless of frequency.</td>
+            <td>Robust to imbalance, but treats a missed dermatofibroma as equivalent to a missed melanoma.</td>
+          </tr>
+          <tr>
+            <td>Per-class precision</td>
+            <td>Of cases flagged as class <em>k</em>, the proportion that truly were.</td>
+            <td>Governs false-alarm burden. Matters for usability, not for safety.</td>
+          </tr>
+          <tr>
+            <td>Top-2 accuracy</td>
+            <td>Whether the true class appeared among the two highest-probability predictions.</td>
+            <td>Diagnostic of confusion between visually adjacent categories rather than a performance claim.</td>
+          </tr>
+          <tr>
+            <td>Overall accuracy</td>
+            <td>Proportion of all validation images classified correctly.</td>
+            <td>Dominated by the majority class; see below.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="headline" class="step">
+      <p class="eyebrow">4.3</p>
+      <h2>Headline figures</h2>
+
+      <div class="result-cards">
+        <div class="rc rc-primary">
+          <p class="rc-label">Melanoma recall</p>
+          <p class="rc-val" data-pending>pending</p>
+          <p class="rc-note">Primary endpoint</p>
+        </div>
+        <div class="rc">
+          <p class="rc-label">Malignant-group recall</p>
+          <p class="rc-val" data-pending>pending</p>
+          <p class="rc-note">mel + bcc + akiec</p>
+        </div>
+        <div class="rc">
+          <p class="rc-label">Macro F1</p>
+          <p class="rc-val" data-pending>pending</p>
+          <p class="rc-note">Unweighted across 7 classes</p>
+        </div>
+        <div class="rc rc-muted">
+          <p class="rc-label">Overall accuracy</p>
+          <p class="rc-val" data-pending>pending</p>
+          <p class="rc-note">Reported for completeness only</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <p class="callout-label">On the accuracy figure specifically</p>
+        <p>
+          Melanocytic nevi constitute roughly 66.9% of HAM10000. A degenerate
+          classifier that always predicted <code>nv</code> would therefore score
+          approximately 67% accuracy while detecting no cancer at all. Any
+          accuracy figure quoted for this dataset must be read against that
+          floor, and a figure in the high nineties is far less impressive than
+          it sounds unless accompanied by per-class recall. This project
+          reports accuracy because omitting it would look evasive — not because
+          it is the number that matters.
+        </p>
+      </div>
+    </section>
+
+    <section id="perclass" class="step">
+      <p class="eyebrow">4.4</p>
+      <h2>Per-class classification report</h2>
+      <p class="lede">
+        Precision, recall and F1 for each diagnostic category, with support
+        indicating the number of validation images in that class. Populated
+        directly from the <code>classification_report</code> output.
+      </p>
+      <table class="dist dist-static">
+        <thead>
+          <tr>
+            <th scope="col">Class</th>
+            <th scope="col" class="num">Precision</th>
+            <th scope="col" class="num">Recall</th>
+            <th scope="col" class="num">F1</th>
+            <th scope="col" class="num">Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-highlight">
+            <td><code>mel</code> Melanoma <span class="pill pill-mal">Primary</span></td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>bcc</code> Basal cell carcinoma</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>akiec</code> Actinic keratoses / intraepithelial carcinoma</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>nv</code> Melanocytic nevi</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>bkl</code> Benign keratosis-like lesions</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>df</code> Dermatofibroma</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+          <tr>
+            <td><code>vasc</code> Vascular lesions</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="table-src">
+        Expected reading: recall on <code>df</code> and <code>vasc</code> will
+        be the least stable figures in this table, as each contributes only a
+        handful of validation lesions. A single misclassification moves those
+        percentages substantially, and they should be reported with support
+        counts attached rather than quoted alone.
+      </p>
+    </section>
+
+    <section id="confusion" class="step">
+      <p class="eyebrow">4.5</p>
+      <h2>Confusion matrix</h2>
+      <p class="lede">
+        Rows are true classes, columns are predictions. The cells that carry
+        the most clinical weight are those in the melanoma row that fall
+        outside the melanoma column — each represents a melanoma the system
+        failed to flag.
+      </p>
+      <div class="cm-wrap">
+        <table class="cm">
+          <thead>
+            <tr>
+              <th class="cm-corner"><span>true ↓ / pred →</span></th>
+              <th>akiec</th><th>bcc</th><th>bkl</th><th>df</th><th>mel</th><th>nv</th><th>vasc</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th>akiec</th><td class="cm-d">·</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+            <tr><th>bcc</th><td>·</td><td class="cm-d">·</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+            <tr><th>bkl</th><td>·</td><td>·</td><td class="cm-d">·</td><td>·</td><td>·</td><td>·</td><td>·</td></tr>
+            <tr><th>df</th><td>·</td><td>·</td><td>·</td><td class="cm-d">·</td><td>·</td><td>·</td><td>·</td></tr>
+            <tr class="cm-critical"><th>mel</th><td class="cm-miss">·</td><td class="cm-miss">·</td><td class="cm-miss">·</td><td class="cm-miss">·</td><td class="cm-d">·</td><td class="cm-miss">·</td><td class="cm-miss">·</td></tr>
+            <tr><th>nv</th><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td><td class="cm-d">·</td><td>·</td></tr>
+            <tr><th>vasc</th><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td><td>·</td><td class="cm-d">·</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-src">
+        Awaiting population from <code>outputs/confusion_matrix.npy</code>.
+        Shaded cells on the melanoma row denote false negatives — the error
+        class this project is specifically designed to minimise.
+      </p>
+
+      <div class="callout">
+        <p class="callout-label">The cell to examine first</p>
+        <p>
+          <code>mel → nv</code>. A melanoma classified as an ordinary mole is
+          the most dangerous single error the system can make, because it is
+          also the most reassuring-looking output. It is worth reporting that
+          cell explicitly rather than leaving a reader to locate it in the
+          matrix.
+        </p>
+      </div>
+    </section>
+
+    <section id="interpretation" class="step">
+      <p class="eyebrow">4.6</p>
+      <h2>How these results should and should not be read</h2>
+      <ul class="limits">
+        <li>
+          <strong>Validation, not test.</strong> The 15% partition guided
+          checkpoint selection through the <code>val_accuracy</code> monitor.
+          Performance measured on the same split that selected the checkpoint
+          is optimistically biased. A truly held-out test set, or external
+          validation on an independent archive such as ISIC or DERM12345, would
+          be required for an unbiased estimate — and is the natural next step
+          for this work.
+        </li>
+        <li>
+          <strong>In-distribution only.</strong> Every figure reported here is
+          measured on dermoscopic images from the same archive as training.
+          Nothing on this page estimates performance on smartphone photography,
+          on other dermatoscopes, or on populations HAM10000 under-represents.
+        </li>
+        <li>
+          <strong>No comparison to clinicians is claimed.</strong> Published
+          human-versus-machine comparisons on this task used controlled reader
+          studies with matched image sets. This project ran no reader study,
+          and no statement about relative performance is supported by these
+          results.
+        </li>
+        <li>
+          <strong>Single run, no confidence intervals.</strong> Results come
+          from one training run at a fixed seed. Repeated runs across seeds
+          would be needed to separate genuine effects from initialisation
+          variance, particularly for the rare classes.
+        </li>
+      </ul>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/analyse.html"><span>Previous</span>Analysis</a>
+      <a class="pn next" href="/ethics.html"><span>Next</span>Ethics &amp; Limitations</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+</body>
+</html>

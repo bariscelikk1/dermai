@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Method — DermAI</title>
+<meta name="description" content="Dataset, lesion-level partitioning, imbalance handling, EfficientNet-B0 architecture, and the two-stage LP-FT training protocol.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 02</p>
+    <h1>Materials and method</h1>
+    <p class="hero-lede">
+      The dataset, the partitioning protocol that prevents leakage, the
+      treatment of a 58:1 class imbalance, the network architecture, and the
+      two-stage transfer-learning schedule — with the reasoning behind each
+      decision.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">Method</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#dataset">Dataset</a></li>
+      <li><a href="#split">Lesion-level partition</a></li>
+      <li><a href="#imbalance">Class imbalance</a></li>
+      <li><a href="#pipeline">Input pipeline</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#lpft">The LP-FT protocol</a></li>
+      <li><a href="#batchnorm">Frozen BatchNorm</a></li>
+      <li><a href="#training">Training configuration</a></li>
+      <li><a href="#checkpointing">Checkpointing</a></li>
+      <li><a href="#repro">Reproducibility</a></li>
+    </ol>
+    <div class="sidebar-figure">
+      <p class="figure-num">5.3M</p>
+      <p class="figure-cap">Approximate parameter count, EfficientNet-B0</p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <section id="dataset" class="step">
+      <p class="eyebrow">2.1</p>
+      <h2>Dataset</h2>
+      <p class="lede">
+        Training uses <strong>HAM10000</strong> — "Human Against Machine with
+        10000 training images" — published by Tschandl, Rosendahl and Kittler
+        in <em>Scientific Data</em> (2018). The archive aggregates dermoscopic
+        images from multiple populations and acquisition modalities, and is
+        distributed through the ISIC archive. Ground-truth labels derive from
+        histopathology, follow-up, expert consensus, or in-vivo confocal
+        microscopy.
+      </p>
+
+      <table class="dist dist-static">
+        <thead>
+          <tr>
+            <th scope="col">Code</th>
+            <th scope="col">Diagnosis</th>
+            <th scope="col">Category</th>
+            <th scope="col" class="num">Images</th>
+            <th scope="col" class="num">Share</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>nv</code></td><td>Melanocytic nevi</td><td><span class="pill pill-ben">Benign</span></td><td class="num mono">6,705</td><td class="num mono">66.9%</td></tr>
+          <tr><td><code>mel</code></td><td>Melanoma</td><td><span class="pill pill-mal">Malignant</span></td><td class="num mono">1,113</td><td class="num mono">11.1%</td></tr>
+          <tr><td><code>bkl</code></td><td>Benign keratosis-like lesions</td><td><span class="pill pill-ben">Benign</span></td><td class="num mono">1,099</td><td class="num mono">11.0%</td></tr>
+          <tr><td><code>bcc</code></td><td>Basal cell carcinoma</td><td><span class="pill pill-mal">Malignant</span></td><td class="num mono">514</td><td class="num mono">5.1%</td></tr>
+          <tr><td><code>akiec</code></td><td>Actinic keratoses / intraepithelial carcinoma</td><td><span class="pill pill-mal">Pre-malignant</span></td><td class="num mono">327</td><td class="num mono">3.3%</td></tr>
+          <tr><td><code>vasc</code></td><td>Vascular lesions</td><td><span class="pill pill-ben">Benign</span></td><td class="num mono">142</td><td class="num mono">1.4%</td></tr>
+          <tr><td><code>df</code></td><td>Dermatofibroma</td><td><span class="pill pill-ben">Benign</span></td><td class="num mono">115</td><td class="num mono">1.1%</td></tr>
+          <tr class="row-total"><td colspan="3">Total</td><td class="num mono">10,015</td><td class="num mono">100%</td></tr>
+        </tbody>
+      </table>
+      <p class="table-src">Composition of the HAM10000 archive. The ratio between the largest and smallest class is 6,705 : 115 ≈ <strong>58 : 1</strong>.</p>
+    </section>
+
+    <section id="split" class="step">
+      <p class="eyebrow">2.2</p>
+      <h2>Lesion-level partitioning</h2>
+      <p class="lede">
+        HAM10000 contains multiple photographs of the same physical lesion,
+        recorded under distinct <code>image_id</code> values that share a
+        common <code>lesion_id</code>. This is the dataset's most consequential
+        structural property, and mishandling it is the most common source of
+        overstated results in the published literature using this archive.
+      </p>
+
+      <div class="compare">
+        <div class="cmp cmp-bad">
+          <p class="cmp-head">Image-level split — rejected</p>
+          <p>
+            Shuffling all 10,015 rows and taking 15% for validation places
+            near-duplicate photographs of one lesion on both sides of the
+            boundary. The model is then partly validated on images it has
+            effectively memorised. Reported accuracy rises; genuine
+            generalisation does not.
+          </p>
+        </div>
+        <div class="cmp cmp-good">
+          <p class="cmp-head">Lesion-level split — adopted</p>
+          <p>
+            The set of unique <code>lesion_id</code> values is shuffled under a
+            fixed seed and partitioned 85 / 15. Every image inherits the
+            assignment of its lesion. No physical lesion appears on both sides,
+            so validation measures generalisation to unseen lesions rather than
+            recall of seen pixels.
+          </p>
+        </div>
+      </div>
+
+      <pre class="code"><code>lesions = df["lesion_id"].unique()
+rng.shuffle(lesions)
+val_lesions = set(lesions[: int(len(lesions) * 0.15)])
+val_df   = df[ df["lesion_id"].isin(val_lesions)]
+train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
+      <p class="code-cap">Partitioning is performed over lesions, not images — <code>data.py</code>, <code>lesion_level_split()</code>.</p>
+    </section>
+
+    <section id="imbalance" class="step">
+      <p class="eyebrow">2.3</p>
+      <h2>Handling a 58:1 class imbalance</h2>
+      <p class="lede">
+        Two standard remedies exist for imbalanced classification: reweighting
+        the loss so minority errors count for more, or resampling the data so
+        minority classes appear more often. Both were attempted. Only the
+        second converged.
+      </p>
+
+      <div class="finding finding-neg">
+        <p class="finding-label">Negative result — loss reweighting</p>
+        <p>
+          Keras <code>class_weight</code> was implemented first. At a ratio of
+          58:1 the implied weight on the rarest class is large enough that its
+          gradient contribution dominates early updates, and training failed to
+          converge. This is reported rather than omitted: it is the empirical
+          justification for the approach that replaced it.
+        </p>
+      </div>
+
+      <div class="finding finding-pos">
+        <p class="finding-label">Adopted — bounded oversampling</p>
+        <p>
+          Rows from minority classes are duplicated until each class reaches
+          <strong>50% of the majority class count</strong>. The bound is
+          deliberate: full equalisation would require repeating the 115
+          dermatofibroma images roughly 58 times each, which invites
+          memorisation of that specific handful of lesions. Half-parity
+          preserves signal without that degree of repetition.
+        </p>
+      </div>
+
+      <p class="lede">
+        Two properties of the implementation matter for correctness:
+      </p>
+      <ul class="limits">
+        <li>
+          <strong>Applied to the training split only.</strong> The validation
+          split retains the natural class distribution. Oversampling validation
+          would fabricate a prevalence the model will never encounter and make
+          every reported metric meaningless.
+        </li>
+        <li>
+          <strong>Duplicated rows receive independent augmentation.</strong>
+          Because augmentation is applied per-batch after sampling, two copies
+          of the same source image are transformed differently each epoch. The
+          effective inputs differ even though the source pixels repeat.
+        </li>
+      </ul>
+    </section>
+
+    <section id="pipeline" class="step">
+      <p class="eyebrow">2.4</p>
+      <h2>Input pipeline</h2>
+      <p class="lede">
+        The pipeline is built with <code>tf.data</code> and differs between the
+        training and validation paths only in shuffling and augmentation.
+      </p>
+      <ol class="pipe-steps">
+        <li><span>1</span><div><p>Shuffle</p><p class="ps-d">Full-buffer shuffle with reshuffling each epoch. Training path only.</p></div></li>
+        <li><span>2</span><div><p>Decode</p><p class="ps-d">JPEG decoded to three channels.</p></div></li>
+        <li><span>3</span><div><p>Resize</p><p class="ps-d">Bilinear resize to 224 × 224, the native input resolution of EfficientNet-B0.</p></div></li>
+        <li><span>4</span><div><p>Batch</p><p class="ps-d">Batch size 32.</p></div></li>
+        <li><span>5</span><div><p>Augment</p><p class="ps-d">Random horizontal and vertical flips, ±10% rotation, ±10% zoom, ±10% contrast. Training path only.</p></div></li>
+        <li><span>6</span><div><p>Prefetch</p><p class="ps-d">Autotuned prefetch to overlap host preprocessing with device compute.</p></div></li>
+      </ol>
+
+      <div class="callout callout-warn">
+        <p class="callout-label">Pixels are deliberately left unnormalised</p>
+        <p>
+          Images are kept in the raw <code>[0, 255]</code> range rather than
+          scaled to <code>[0, 1]</code>. <code>tf.keras.applications.EfficientNetB0</code>
+          incorporates its own rescaling and normalisation layer at the input.
+          Normalising in the pipeline would apply that transformation twice,
+          shifting inputs far outside the distribution the pretrained weights
+          expect. The model would still train and still emit confident
+          probabilities — it would simply be worse, silently. The same
+          convention is enforced in the inference server so that deployment and
+          training preprocessing cannot drift apart.
+        </p>
+      </div>
+
+      <p class="lede">
+        Flip augmentation is chosen with the domain in mind: dermoscopic images
+        have no canonical orientation, so both horizontal and vertical flips
+        are label-preserving. Rotation, zoom and contrast jitter are kept
+        modest, since aggressive colour distortion would corrupt precisely the
+        pigmentation cues that distinguish these categories.
+      </p>
+    </section>
+
+    <section id="architecture" class="step">
+      <p class="eyebrow">2.5</p>
+      <h2>Architecture</h2>
+      <p class="lede">
+        The backbone is <strong>EfficientNet-B0</strong> (Tan &amp; Le, 2019),
+        initialised from ImageNet-1k weights with its classification head
+        removed. B0 is the smallest member of the family at roughly 5.3 million
+        parameters — chosen so the full protocol trains inside the session and
+        memory limits of a free Kaggle GPU notebook, which is a reproducibility
+        requirement rather than a performance compromise.
+      </p>
+
+      <table class="dist dist-static">
+        <thead><tr><th scope="col">Stage</th><th scope="col">Component</th><th scope="col">Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td>EfficientNet-B0, <code>include_top=False</code></td><td>Pretrained convolutional feature extractor; the classification head for ImageNet's 1,000 classes is discarded.</td></tr>
+          <tr><td class="mono">2</td><td><code>GlobalAveragePooling2D</code></td><td>Collapses the spatial feature map to one value per channel. Parameter-free and position-invariant; far less prone to overfitting than flattening into a large dense layer.</td></tr>
+          <tr><td class="mono">3</td><td><code>Dropout(0.3)</code></td><td>Regularisation against overfitting on a modest, partially oversampled dataset.</td></tr>
+          <tr><td class="mono">4</td><td><code>Dense(7, softmax)</code></td><td>Produces a probability distribution over the seven diagnostic categories.</td></tr>
+        </tbody>
+      </table>
+
+      <pre class="code"><code>base = EfficientNetB0(include_top=False, weights="imagenet",
+                      input_shape=(224, 224, 3))
+base.trainable = False                    # stage 1: linear probing
+
+inputs  = Input(shape=(224, 224, 3))
+x       = base(inputs, training=False)    # pin BatchNorm to inference mode
+x       = GlobalAveragePooling2D()(x)
+x       = Dropout(0.3)(x)
+outputs = Dense(7, activation="softmax")(x)</code></pre>
+      <p class="code-cap"><code>model.py</code>, <code>build_model()</code>.</p>
+    </section>
+
+    <section id="lpft" class="step">
+      <p class="eyebrow">2.6</p>
+      <h2>The two-stage LP-FT protocol</h2>
+      <p class="lede">
+        Training follows <strong>linear probing then fine-tuning</strong>,
+        formalised by Kumar et al. (ICLR 2022). Their central finding is that
+        naive end-to-end fine-tuning can distort pretrained features and
+        underperform out-of-distribution: across ten distribution-shift
+        datasets, fine-tuning averaged 2% higher in-distribution accuracy but
+        7% <em>lower</em> out-of-distribution accuracy than linear probing
+        alone. The proposed remedy is to combine the two in sequence.
+      </p>
+
+      <div class="stages">
+        <article class="stage">
+          <p class="stage-n">Stage 1</p>
+          <h3>Linear probing</h3>
+          <dl class="spec">
+            <dt>Backbone</dt><dd>Frozen</dd>
+            <dt>Trainable</dt><dd>Classifier head only</dd>
+            <dt>Learning rate</dt><dd class="mono">1 × 10⁻³</dd>
+            <dt>Epochs</dt><dd class="mono">10</dd>
+          </dl>
+          <p>
+            The head is randomly initialised and therefore produces large,
+            uninformative gradients in its first epochs. With the backbone
+            frozen, those gradients cannot reach the ImageNet weights. The
+            head learns to read features that remain exactly as pretrained.
+          </p>
+        </article>
+        <article class="stage">
+          <p class="stage-n">Stage 2</p>
+          <h3>Fine-tuning</h3>
+          <dl class="spec">
+            <dt>Backbone</dt><dd>Unfrozen, except BatchNorm</dd>
+            <dt>Initialised from</dt><dd>Best stage-1 checkpoint</dd>
+            <dt>Learning rate</dt><dd class="mono">1 × 10⁻⁴</dd>
+            <dt>Epochs</dt><dd class="mono">30</dd>
+          </dl>
+          <p>
+            Beginning from a head that already makes sensible predictions, the
+            backbone is released at one tenth the learning rate. Updates are
+            small corrections adapting general visual features to dermoscopic
+            texture, rather than the large corrective steps a randomly
+            initialised head would have demanded.
+          </p>
+        </article>
+      </div>
+
+      <p class="lede">
+        The model is <strong>recompiled</strong> between stages. This is not
+        cosmetic: in Keras, <code>compile()</code> binds the optimiser and its
+        internal state to the current set of trainable variables. Changing
+        which variables are trainable without recompiling leaves the optimiser
+        inconsistent with the graph it is meant to update. Recompilation also
+        supplies the new learning rate and resets Adam's moment estimates,
+        which is desirable at a stage boundary.
+      </p>
+    </section>
+
+    <section id="batchnorm" class="step">
+      <p class="eyebrow">2.7</p>
+      <h2>Why BatchNormalization stays frozen</h2>
+      <p class="lede">
+        This is the most consequential implementation detail in the project and
+        the one most often omitted from transfer-learning tutorials.
+      </p>
+      <p class="lede">
+        A BatchNormalization layer holds two distinct kinds of state. The first
+        is a pair of learnable affine parameters, <em>γ</em> and <em>β</em>,
+        updated by gradient descent. The second is a running estimate of the
+        mean and variance of its inputs, accumulated by moving average during
+        training and used at inference. Only the first is governed by
+        backpropagation; the second is updated as a side effect of running the
+        layer in training mode.
+      </p>
+
+      <div class="callout callout-warn">
+        <p class="callout-label">Observed failure mode</p>
+        <p>
+          When the backbone is unfrozen without protecting these layers, the
+          running statistics accumulated over ImageNet are overwritten by
+          statistics computed from HAM10000 batches — batches that are small
+          (32), oversampled, and drawn from a narrow visual domain. Every
+          downstream activation is then rescaled against unstable estimates,
+          and validation loss diverges within a few epochs while training loss
+          continues to fall. The signature is unmistakable once seen.
+        </p>
+      </div>
+
+      <p class="lede">Two independent mechanisms guard against this:</p>
+      <ol class="rq">
+        <li>
+          <span class="rq-num">1</span>
+          <div>
+            <p class="rq-q"><code>base(inputs, training=False)</code> at construction</p>
+            <p class="rq-a">Pins the backbone's BatchNorm layers to inference behaviour permanently — they normalise using stored ImageNet statistics regardless of the surrounding training context. This flag controls <em>behaviour</em>, and is independent of <code>trainable</code>, which controls <em>weight updates</em>. Conflating the two is the usual source of confusion.</p>
+          </div>
+        </li>
+        <li>
+          <span class="rq-num">2</span>
+          <div>
+            <p class="rq-q">Explicit re-freezing after unfreezing</p>
+            <p class="rq-a"><code>base.trainable = True</code> releases every layer indiscriminately; the loop that follows sets <code>trainable = False</code> on each BatchNormalization layer specifically, so γ and β are held fixed and the moving statistics are not updated.</p>
+          </div>
+        </li>
+      </ol>
+
+      <pre class="code"><code>base = model.get_layer("efficientnetb0")
+base.trainable = True
+for layer in base.layers:
+    if isinstance(layer, tf.keras.layers.BatchNormalization):
+        layer.trainable = False</code></pre>
+      <p class="code-cap"><code>model.py</code>, <code>unfreeze_for_finetune()</code>.</p>
+    </section>
+
+    <section id="training" class="step">
+      <p class="eyebrow">2.8</p>
+      <h2>Training configuration</h2>
+      <table class="dist dist-static">
+        <thead><tr><th scope="col">Parameter</th><th scope="col">Value</th><th scope="col">Note</th></tr></thead>
+        <tbody>
+          <tr><td>Input resolution</td><td class="mono">224 × 224 × 3</td><td>Native EfficientNet-B0 resolution</td></tr>
+          <tr><td>Batch size</td><td class="mono">32</td><td>Fits free-tier GPU memory</td></tr>
+          <tr><td>Optimiser</td><td class="mono">Adam</td><td>Recompiled at the stage boundary</td></tr>
+          <tr><td>Loss</td><td class="mono">sparse_categorical_crossentropy</td><td>Labels are integers 0–6, not one-hot</td></tr>
+          <tr><td>Metrics</td><td class="mono">accuracy, top-2 accuracy</td><td>Top-2 is informative where categories are visually adjacent</td></tr>
+          <tr><td>Stage 1 learning rate</td><td class="mono">1e-3</td><td>10 epochs, backbone frozen</td></tr>
+          <tr><td>Stage 2 learning rate</td><td class="mono">1e-4</td><td>30 epochs, backbone released</td></tr>
+          <tr><td>LR schedule</td><td class="mono">×0.5 on plateau</td><td>Patience 3 epochs, floor 1e-6, monitored on validation loss</td></tr>
+          <tr><td>Validation fraction</td><td class="mono">0.15</td><td>Partitioned at lesion level</td></tr>
+          <tr><td>Random seed</td><td class="mono">42</td><td>Fixed across splitting and sampling</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="checkpointing" class="step">
+      <p class="eyebrow">2.9</p>
+      <h2>Checkpointing under non-persistent sessions</h2>
+      <p class="lede">
+        Training was performed in Kaggle notebooks, where sessions terminate on
+        a time limit and the working directory does not survive. A thirty-epoch
+        fine-tuning run cannot be assumed to complete in one sitting, so
+        checkpointing is a functional requirement rather than a convenience.
+      </p>
+      <p class="lede">
+        The stock Keras callbacks could not be used. In the installed version,
+        the checkpoint and learning-rate-schedule path performs a deep copy of
+        callback state that fails on this model, because the wrapped
+        EfficientNet backbone holds references that are not copyable — the run
+        crashes at the first save attempt. Both callbacks were therefore
+        reimplemented.
+      </p>
+
+      <div class="two-col">
+        <div class="claim">
+          <p class="claim-head"><code>ResumableCheckpoint</code></p>
+          <ul>
+            <li>Writes both a <em>best</em> and a <em>last</em> model every epoch.</li>
+            <li>Serialises a small JSON state file recording epochs completed, the best monitored value, the current learning rate, and the epoch's logs.</li>
+            <li>Holds scalar state only — nothing that would be deep-copied.</li>
+            <li>On <code>--resume</code>, reloads the last model, restores the learning rate, and continues from the recorded epoch.</li>
+          </ul>
+        </div>
+        <div class="claim">
+          <p class="claim-head"><code>SimpleReduceLROnPlateau</code></p>
+          <ul>
+            <li>Monitors validation loss with a minimum-improvement threshold of 1e-4.</li>
+            <li>After 3 epochs without improvement, halves the learning rate.</li>
+            <li>Floors the rate at 1e-6.</li>
+            <li>Tracks only two scalars — best value and wait counter — so it is safe to serialise and restore.</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="lede">
+        The two-stage structure interacts with this cleanly: fine-tuning
+        initialises from <code>lp_best.keras</code>, so the stages are separate
+        resumable runs rather than one long fragile job.
+      </p>
+    </section>
+
+    <section id="repro" class="step">
+      <p class="eyebrow">2.10</p>
+      <h2>Reproducibility</h2>
+      <p class="lede">
+        The full pipeline is public and runs on free compute. Paths default to
+        the Kaggle dataset layout and are overridable by environment variable,
+        so the same code executes locally without modification.
+      </p>
+      <pre class="code"><code># Stage 1 — linear probing
+python -m dermai.train --stage lp
+
+# Stage 2 — fine-tuning, from the best LP checkpoint
+python -m dermai.train --stage ft
+
+# Resume either stage after an interrupted session
+python -m dermai.train --stage ft --resume
+
+# Evaluate on the held-out validation split
+python -m dermai.evaluate</code></pre>
+      <p class="code-cap">Source: <a href="https://github.com/bariscelikk1/dermai" target="_blank" rel="noopener">github.com/bariscelikk1/dermai</a>. Dataset: <code>kmader/skin-cancer-mnist-ham10000</code> on Kaggle.</p>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/clinical.html"><span>Previous</span>Clinical Context</a>
+      <a class="pn next" href="/analyse.html"><span>Next</span>Analysis</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+</body>
+</html>

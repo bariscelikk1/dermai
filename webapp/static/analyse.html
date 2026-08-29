@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analysis — DermAI</title>
+<meta name="description" content="Submit a dermoscopic image for seven-class classification with a risk-banded assessment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 03</p>
+    <h1>Analysis tool</h1>
+    <p class="hero-lede">
+      Submit a dermoscopic image and receive the model's full probability
+      distribution across the seven diagnostic categories, together with an
+      aggregated risk band and the reasoning behind it.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">Analysis</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#analysis">Submit an image</a></li>
+      <li><a href="#assessment">Assessment</a></li>
+      <li><a href="#bands">How bands are derived</a></li>
+      <li><a href="#privacy">Data handling</a></li>
+    </ol>
+    <div class="sidebar-note sidebar-warn">
+      <p>
+        <strong>Not a diagnosis.</strong> A benign result never rules out
+        cancer. Any lesion that is changing, bleeding, itching or simply
+        worrying you should be examined by a dermatologist.
+      </p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <div class="notice notice-critical" role="note">
+      <p class="notice-label">Important — not a medical device</p>
+      <p>
+        This tool is an undergraduate research prototype with no regulatory
+        approval. It was trained exclusively on <strong>dermoscopic</strong>
+        images captured through a contact dermatoscope. An ordinary smartphone
+        photograph is an out-of-distribution input: the model will still return
+        a confident-looking distribution, but that confidence is not meaningful.
+        Never use this output to decide whether to seek care.
+      </p>
+    </div>
+
+    <section id="analysis" class="step">
+      <p class="eyebrow">Step 01</p>
+      <h2>Submit a lesion image</h2>
+      <p class="lede">
+        Upload a single dermoscopic image. It is processed in memory on the
+        server and is never written to disk or transmitted to any third party.
+      </p>
+
+      <div id="dropzone" class="dropzone" tabindex="0" role="button"
+           aria-label="Upload a lesion image">
+        <svg class="dz-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 32V10m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 30v6a4 4 0 004 4h28a4 4 0 004-4v-6" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-primary">Drop an image here, or <span>browse files</span></p>
+        <p class="dz-secondary">JPEG or PNG · downscaled in-browser, then resized to 224 × 224 for inference</p>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+      </div>
+
+      <p id="uploadError" class="field-error" hidden></p>
+    </section>
+
+    <section id="scanStep" class="step" hidden>
+      <p class="eyebrow">Step 02</p>
+      <h2>Image analysis</h2>
+
+      <div class="scan-grid">
+        <figure class="scan-frame">
+          <img id="preview" alt="Submitted lesion">
+          <div class="reticle" aria-hidden="true">
+            <span class="c tl"></span><span class="c tr"></span>
+            <span class="c bl"></span><span class="c br"></span>
+          </div>
+          <div id="scanline" class="scanline" aria-hidden="true"></div>
+          <div id="scanmesh" class="scanmesh" aria-hidden="true"></div>
+          <figcaption id="scanCaption">Acquiring image…</figcaption>
+        </figure>
+
+        <ol id="pipeline" class="pipeline">
+          <li data-step="decode"><span class="tick"></span>Decode &amp; orient (EXIF)</li>
+          <li data-step="resize"><span class="tick"></span>Bilinear resize → 224 × 224</li>
+          <li data-step="scale"><span class="tick"></span>Retain raw [0, 255] range</li>
+          <li data-step="infer"><span class="tick"></span>EfficientNet-B0 forward pass</li>
+          <li data-step="soft"><span class="tick"></span>Softmax over 7 classes</li>
+          <li data-step="risk"><span class="tick"></span>Aggregate malignant probability</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="assessment" class="step" hidden>
+      <p class="eyebrow">Step 03</p>
+      <h2>Assessment</h2>
+
+      <div id="verdict" class="verdict">
+        <div class="verdict-head">
+          <span id="verdictDot" class="verdict-dot" aria-hidden="true"></span>
+          <div>
+            <p id="verdictBand" class="verdict-band">—</p>
+            <p id="verdictLine" class="verdict-line">—</p>
+          </div>
+        </div>
+        <div class="verdict-metrics">
+          <div class="metric">
+            <p class="metric-label">Most probable class</p>
+            <p id="mTop" class="metric-value">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric-label">Melanoma probability</p>
+            <p id="mMel" class="metric-value">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric-label">Malignant group total</p>
+            <p id="mMal" class="metric-value">—</p>
+          </div>
+        </div>
+        <p id="verdictNote" class="verdict-note"></p>
+      </div>
+
+      <h3 class="sub">Probability distribution</h3>
+      <table class="dist">
+        <thead>
+          <tr><th scope="col">Class</th><th scope="col">Category</th>
+              <th scope="col" class="num">Probability</th></tr>
+        </thead>
+        <tbody id="distBody"></tbody>
+      </table>
+
+      <button id="resetBtn" class="btn btn-ghost" type="button">Analyse another image</button>
+    </section>
+
+    <section id="referral" class="step" hidden>
+      <p class="eyebrow">Next steps</p>
+      <h2>Find dermatological care</h2>
+      <p class="lede">
+        The model assigned meaningful probability to malignant categories. This
+        is not a diagnosis — it is a prompt to have the lesion examined in
+        person by someone qualified to examine it.
+      </p>
+
+      <div class="care">
+        <div class="care-actions">
+          <button id="locBtn" class="btn btn-primary" type="button">
+            Use my location to find nearby clinics
+          </button>
+          <p id="locStatus" class="loc-status">
+            Your coordinates stay in the browser — they are used only to build a
+            map search link and are never sent to DermAI.
+          </p>
+        </div>
+        <div id="mapLinks" class="map-links" hidden>
+          <a id="gmaps" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Google Maps</span>
+            <span class="map-title">Dermatologists near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+          <a id="amaps" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Apple Maps</span>
+            <span class="map-title">Dermatologists near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+          <a id="ghosp" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Google Maps</span>
+            <span class="map-title">Hospitals near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <h3 class="sub">Understanding what happens next</h3>
+      <p class="lede lede-tight">
+        These open a YouTube search rather than one fixed video, so the results
+        stay current rather than decaying to a dead link.
+      </p>
+      <div class="videos">
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=ABCDE+rule+melanoma+dermatologist+explains"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Self-examination</span>
+          <span class="video-title">The ABCDE criteria</span>
+          <span class="video-desc">Asymmetry, Border, Colour, Diameter, Evolving — the features that raise clinical suspicion.</span>
+        </a>
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=how+to+check+your+skin+for+skin+cancer+dermatologist"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Screening</span>
+          <span class="video-title">Performing a skin self-check</span>
+          <span class="video-desc">A systematic method for examining your own skin between appointments.</span>
+        </a>
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=what+to+expect+skin+biopsy+dermatology+appointment"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Clinical visit</span>
+          <span class="video-title">What to expect at the appointment</span>
+          <span class="video-desc">Dermoscopy, biopsy, and how results are usually communicated.</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="bands" class="step">
+      <p class="eyebrow">Interpretation</p>
+      <h2>How the risk band is derived</h2>
+      <p class="lede">
+        The band is not a separate model output. It is a deterministic
+        aggregation over the seven softmax probabilities: the malignant and
+        pre-malignant categories — <code>mel</code>, <code>bcc</code> and
+        <code>akiec</code> — are summed into a single score, and thresholded.
+      </p>
+      <table class="dist dist-static">
+        <thead><tr><th scope="col">Band</th><th scope="col">Malignant group total</th><th scope="col">Intended reading</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill pill-ben">Low</span></td><td class="mono">&lt; 0.20</td><td>Distribution concentrated in benign categories. Not clearance.</td></tr>
+          <tr><td><span class="pill pill-warn">Indeterminate</span></td><td class="mono">0.20 – 0.50</td><td>The model is not confident either way — the case a clinician would escalate rather than dismiss.</td></tr>
+          <tr><td><span class="pill pill-mal">Elevated</span></td><td class="mono">≥ 0.50</td><td>Distribution dominated by malignant categories. A prompt to book an examination.</td></tr>
+        </tbody>
+      </table>
+      <p class="lede lede-tight">
+        Melanoma probability is additionally surfaced on its own, because it is
+        the project's primary endpoint and because a moderate melanoma
+        probability is clinically more significant than the same probability
+        mass sitting in the basal cell carcinoma class.
+      </p>
+      <p class="lede lede-tight">
+        Thresholds are a deliberately conservative design choice rather than a
+        calibrated clinical decision rule. They have not been validated against
+        any outcome data, and should not be read as one.
+      </p>
+    </section>
+
+    <section id="privacy" class="step">
+      <p class="eyebrow">Data handling</p>
+      <h2>What happens to a submitted image</h2>
+      <ul class="limits">
+        <li><strong>Downscaled before it leaves your device.</strong> The browser reduces the image to at most 1,024 pixels on its longest edge before upload — the model only ever sees 224 × 224, so full-resolution transfer would be wasted bandwidth.</li>
+        <li><strong>Held in memory only.</strong> The server decodes the upload into an array, runs inference, and discards it. Nothing is written to disk.</li>
+        <li><strong>Not logged, not retained, not shared.</strong> No image, prediction, or derived feature is stored or transmitted onward.</li>
+        <li><strong>Location never reaches the server.</strong> If you use the clinic finder, geolocation is read in the browser and used only to construct outbound map links.</li>
+      </ul>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/method.html"><span>Previous</span>Method</a>
+      <a class="pn next" href="/results.html"><span>Next</span>Results</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

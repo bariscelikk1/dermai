@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ethics &amp; Limitations — DermAI</title>
+<meta name="description" content="Regulatory status, dataset bias, deployment risk, data protection under KVKK, and the boundaries of responsible use.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Section 05</p>
+    <h1>Ethics and limitations</h1>
+    <p class="hero-lede">
+      What this system cannot do, whom it may not serve equally, what
+      regulatory status it holds, and the conditions under which deploying it
+      would be irresponsible.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/index.html">Home</a><span>›</span><span aria-current="page">Ethics &amp; Limitations</span>
+</div>
+
+<main class="wrap layout">
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#regulatory">Regulatory status</a></li>
+      <li><a href="#distribution">Distribution shift</a></li>
+      <li><a href="#bias">Representation and bias</a></li>
+      <li><a href="#reassurance">False reassurance</a></li>
+      <li><a href="#automation">Automation bias</a></li>
+      <li><a href="#opacity">Opacity</a></li>
+      <li><a href="#data">Data protection</a></li>
+      <li><a href="#licence">Dataset licence</a></li>
+      <li><a href="#conditions">Conditions for deployment</a></li>
+    </ol>
+  </aside>
+
+  <div class="content">
+
+    <div class="notice notice-critical" role="note">
+      <p class="notice-label">Statement of status</p>
+      <p>
+        DermAI is an undergraduate research prototype. It is not a medical
+        device, holds no regulatory approval in any jurisdiction, has not been
+        clinically validated, and must not be used to inform any decision about
+        seeking or deferring medical care. It is published for academic and
+        educational purposes.
+      </p>
+    </div>
+
+    <section id="regulatory" class="step">
+      <p class="eyebrow">5.1</p>
+      <h2>Regulatory status</h2>
+      <p class="lede">
+        Software intended to diagnose, prevent, monitor, predict or treat
+        disease falls within the definition of a medical device under the EU
+        Medical Device Regulation (2017/745) and, in Türkiye, under the
+        regulations administered by TİTCK (Türkiye İlaç ve Tıbbî Cihaz Kurumu).
+        Diagnostic software of this type would attract a risk classification
+        requiring conformity assessment, clinical evaluation, a quality
+        management system, and post-market surveillance.
+      </p>
+      <p class="lede">
+        This project has undertaken none of those processes and makes no claim
+        to have done so. The distinction it relies on is one of
+        <strong>intended purpose</strong>: DermAI is presented as a research
+        artefact demonstrating a training methodology, not as a tool intended
+        for diagnosis. That distinction is only meaningful if the presentation
+        is consistent with it — which is why the disclaimer appears on every
+        page that returns a prediction, rather than once in a footer.
+      </p>
+    </section>
+
+    <section id="distribution" class="step">
+      <p class="eyebrow">5.2</p>
+      <h2>Distribution shift is the primary technical limitation</h2>
+      <p class="lede">
+        The training distribution is contact dermoscopy: magnified, polarised
+        or immersion-illuminated images captured by clinicians under controlled
+        conditions. Three categories of input fall outside it.
+      </p>
+      <ul class="limits">
+        <li>
+          <strong>Smartphone photography.</strong> Different optics,
+          illumination, working distance and colour processing. The subsurface
+          structures dermoscopy reveals are simply absent. The model has no
+          mechanism to signal that an input is unfamiliar — softmax always
+          normalises to one, so an out-of-distribution image yields a confident
+          distribution rather than an abstention.
+        </li>
+        <li>
+          <strong>Other acquisition hardware.</strong> Different dermatoscopes
+          differ in polarisation, colour rendition and magnification. HAM10000
+          is multi-source, which helps, but does not constitute validation
+          against arbitrary devices.
+        </li>
+        <li>
+          <strong>Anatomical sites and lesion types under-represented in the
+          archive.</strong> Acral, mucosal, nail-apparatus and scalp lesions
+          have distinctive dermoscopic vocabularies that a general model
+          trained on predominantly trunk and limb lesions will read poorly.
+        </li>
+      </ul>
+      <div class="callout callout-warn">
+        <p class="callout-label">A concrete demonstration</p>
+        <p>
+          Presented with uniform random noise — an input containing no lesion
+          at all — the deployed model returns melanocytic nevus with
+          approximately 98.6% probability. It is not detecting a mole; it is
+          falling back on the majority-class prior in the absence of
+          recognisable features. High reported confidence is therefore not
+          evidence that the input was appropriate.
+        </p>
+      </div>
+    </section>
+
+    <section id="bias" class="step">
+      <p class="eyebrow">5.3</p>
+      <h2>Representation and demographic bias</h2>
+      <p class="lede">
+        HAM10000 was assembled principally from Austrian and Australian
+        clinical populations. Both skew heavily toward lighter Fitzpatrick
+        phototypes. The dataset does not record phototype, so the imbalance
+        cannot be measured directly from the metadata — which is itself part of
+        the problem.
+      </p>
+      <p class="lede">
+        This has documented clinical consequence. Melanoma in darker skin
+        presents disproportionately as acral lentiginous melanoma, on palms,
+        soles and nail beds, with a dermoscopic appearance distinct from the
+        superficial spreading pattern that dominates these archives. Survival
+        outcomes are already worse in these groups, and a screening aid trained
+        on a non-representative archive risks widening rather than narrowing
+        that gap.
+      </p>
+      <div class="callout callout-warn">
+        <p class="callout-label">Unvalidated for the population it would serve</p>
+        <p>
+          No performance claim on this site is stratified by skin phototype,
+          because the data to make one does not exist in the archive used.
+          Deployment in Türkiye — a population with a substantially different
+          phototype distribution from the training source — would require
+          validation on local data before any clinical claim could be
+          entertained. This is stated as a limitation of the present work and a
+          precondition for any continuation of it.
+        </p>
+      </div>
+    </section>
+
+    <section id="reassurance" class="step">
+      <p class="eyebrow">5.4</p>
+      <h2>The asymmetry of harm</h2>
+      <p class="lede">
+        The two error modes of a screening tool produce quite different harms,
+        and only one of them is visible to the person affected.
+      </p>
+      <div class="two-col">
+        <div class="claim claim-no">
+          <p class="claim-head">False negative — the serious failure</p>
+          <ul>
+            <li>A malignant lesion is reported as benign.</li>
+            <li>The user's existing concern is displaced by an apparently authoritative reassurance.</li>
+            <li>Presentation is deferred — potentially across the survival gradient from localized to regional or distant disease.</li>
+            <li>The harm is invisible at the time it occurs, and attributable to the tool only in retrospect.</li>
+          </ul>
+        </div>
+        <div class="claim claim-yes">
+          <p class="claim-head">False positive — the tolerable failure</p>
+          <ul>
+            <li>A benign lesion is flagged as concerning.</li>
+            <li>Costs an outpatient appointment, possibly a biopsy, and a period of anxiety.</li>
+            <li>Consumes clinical capacity, which at population scale is a genuine cost.</li>
+            <li>But the error is corrected by the examination it prompts.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="lede">
+        This asymmetry is why the interface never displays an unqualified
+        "benign" verdict. The low-risk band is worded as an absence of detected
+        malignant indicators, accompanied by an explicit statement that this is
+        not clearance and that a changing or symptomatic lesion warrants
+        examination regardless of the output.
+      </p>
+    </section>
+
+    <section id="automation" class="step">
+      <p class="eyebrow">5.5</p>
+      <h2>Automation bias</h2>
+      <p class="lede">
+        People systematically over-trust automated outputs, particularly when
+        those outputs are numerically precise and delivered through a confident
+        interface. A probability quoted to one decimal place carries an
+        implicit claim to calibration that this model has not demonstrated.
+      </p>
+      <p class="lede">
+        The design responds to this in three ways: the full distribution across
+        all seven classes is shown rather than a single verdict, so the reader
+        sees how much probability mass sits elsewhere; the risk band is
+        described as a deterministic aggregation with stated thresholds rather
+        than as a clinical judgement; and the limitations are placed alongside
+        the result rather than behind a link. None of this eliminates the
+        effect. It is a mitigation, not a solution.
+      </p>
+    </section>
+
+    <section id="opacity" class="step">
+      <p class="eyebrow">5.6</p>
+      <h2>Opacity and the absence of explanation</h2>
+      <p class="lede">
+        The model provides no account of why it produced a given output. There
+        is no saliency map, no attention visualisation, no attribution to
+        recognisable dermoscopic criteria. A clinician cannot inspect its
+        reasoning, and therefore cannot identify when that reasoning is
+        spurious.
+      </p>
+      <p class="lede">
+        This matters more than it might appear. Dermoscopic archives are known
+        to contain confounders — surgical skin markings, rulers and scale
+        bars, adhesive fiducials — that correlate with malignancy because
+        clinicians annotate lesions they already suspect. A classifier can
+        learn the marking rather than the lesion and score well on internal
+        validation while having learned nothing transferable. This project has
+        not audited for such shortcuts, and their absence cannot be assumed.
+        Gradient-based attribution would be the appropriate next step.
+      </p>
+    </section>
+
+    <section id="data" class="step">
+      <p class="eyebrow">5.7</p>
+      <h2>Data protection</h2>
+      <p class="lede">
+        Under Turkish law (KVKK, Law No. 6698), data concerning health is
+        classified as special-category personal data — <em>özel nitelikli
+        kişisel veri</em> — and is subject to stricter processing conditions
+        than ordinary personal data. An image of a person's skin lesion,
+        submitted in a health context, falls within that category. Equivalent
+        protections apply under GDPR Article 9.
+      </p>
+      <p class="lede">
+        The deployed tool is designed so that these obligations are minimised
+        by architecture rather than managed by policy:
+      </p>
+      <ul class="limits">
+        <li><strong>No persistence.</strong> Uploaded images are decoded into memory, used for a single forward pass, and discarded. Nothing is written to disk.</li>
+        <li><strong>No logging of content.</strong> Neither images nor predictions nor derived features are recorded.</li>
+        <li><strong>No accounts, no identifiers.</strong> The tool collects no name, contact detail, or persistent identifier, so submissions are not linkable to a person.</li>
+        <li><strong>No third-party transmission.</strong> Images are not sent to any external service.</li>
+        <li><strong>Location stays client-side.</strong> Geolocation, if granted for the clinic finder, is read in the browser and used only to construct outbound map links. Coordinates never reach the server.</li>
+        <li><strong>Client-side downscaling.</strong> Images are reduced in the browser before transmission, limiting what crosses the network in the first place.</li>
+      </ul>
+      <p class="lede lede-tight">
+        Any future version that retained images — for instance to accumulate a
+        local validation set — would change this analysis entirely and would
+        require explicit informed consent, a lawful basis under KVKK Article 6,
+        and institutional ethics approval before a single image was stored.
+      </p>
+    </section>
+
+    <section id="licence" class="step">
+      <p class="eyebrow">5.8</p>
+      <h2>Dataset licence and attribution</h2>
+      <p class="lede">
+        HAM10000 is distributed under a Creative Commons non-commercial
+        licence. Two obligations follow, and both are observed here: the
+        dataset authors are cited wherever the data is described, and the work
+        is not deployed commercially. Anyone building on this project should
+        confirm the current licence terms at the source before any use beyond
+        academic research.
+      </p>
+      <p class="cite-inline">
+        Tschandl, P., Rosendahl, C. &amp; Kittler, H. The HAM10000 dataset, a
+        large collection of multi-source dermatoscopic images of common
+        pigmented skin lesions. <em>Scientific Data</em> 5, 180161 (2018).
+      </p>
+    </section>
+
+    <section id="conditions" class="step">
+      <p class="eyebrow">5.9</p>
+      <h2>Conditions under which this work could progress</h2>
+      <p class="lede">
+        Stated as a research agenda rather than a disclaimer: the following
+        would each be necessary, and none alone sufficient, before this
+        approach could be advanced toward any clinical setting.
+      </p>
+      <ol class="rq">
+        <li><span class="rq-num">1</span><div><p class="rq-q">External validation</p><p class="rq-a">Evaluation on an independent archive not used in training or model selection, with a genuinely held-out test partition separate from the split used for checkpointing.</p></div></li>
+        <li><span class="rq-num">2</span><div><p class="rq-q">Stratified performance reporting</p><p class="rq-a">Metrics disaggregated by Fitzpatrick phototype, anatomical site and lesion subtype, on data where those attributes are recorded.</p></div></li>
+        <li><span class="rq-num">3</span><div><p class="rq-q">Calibration analysis</p><p class="rq-a">Reliability diagrams and calibration error, so that a stated probability corresponds to an observed frequency — a precondition for any threshold to be defensible.</p></div></li>
+        <li><span class="rq-num">4</span><div><p class="rq-q">Out-of-distribution detection</p><p class="rq-a">A mechanism for the system to decline to answer, rather than returning a confident prior when shown an input it cannot interpret.</p></div></li>
+        <li><span class="rq-num">5</span><div><p class="rq-q">Interpretability audit</p><p class="rq-a">Attribution analysis to establish that predictions rest on lesion morphology rather than acquisition artefacts or clinical markings.</p></div></li>
+        <li><span class="rq-num">6</span><div><p class="rq-q">Prospective evaluation with clinical oversight</p><p class="rq-a">Institutional ethics approval, informed consent, and a reader study measuring whether clinician performance improves with the tool rather than whether the tool performs well alone.</p></div></li>
+      </ol>
+    </section>
+
+    <div class="page-nav">
+      <a class="pn prev" href="/results.html"><span>Previous</span>Results</a>
+      <a class="pn next" href="/references.html"><span>Next</span>References</a>
+    </div>
+
+  </div>
+</main>
+
+<script src="/chrome.js"></script>
+</body>
+</html>
