@@ -9,3 +9,8 @@ outputs/
 *.h5
 .DS_Store
 kaggle.json
+models/
+.venv/
+
+# personal learning notes — never publish
+HANDOFF.md

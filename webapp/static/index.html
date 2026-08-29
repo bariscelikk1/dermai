@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DermAI — Dermoscopic Lesion Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="utility-bar">
+    <div class="wrap utility-inner">
+      <span class="utility-note">Research prototype · Yıldız Teknik Üniversitesi</span>
+      <nav class="utility-links">
+        <a href="#methodology">Methodology</a>
+        <a href="#limitations">Limitations</a>
+        <a href="https://github.com/bariscelikk1/dermai" target="_blank" rel="noopener">Source</a>
+      </nav>
+    </div>
+  </div>
+  <div class="wrap masthead">
+    <a class="wordmark" href="/">
+      <span class="wordmark-mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40">
+          <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="2.5" fill="currentColor"/>
+          <path d="M20 2v6M20 32v6M2 20h6M32 20h6" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </span>
+      <span class="wordmark-text">
+        <strong>Derm<span class="wordmark-ai">AI</span></strong>
+        <small>Dermoscopic Lesion Analysis</small>
+      </span>
+    </a>
+    <nav class="main-nav">
+      <a href="#analysis">Analysis</a>
+      <a href="#methodology">Methodology</a>
+      <a href="#classes">Classification</a>
+      <a href="#limitations">Limitations</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <p class="eyebrow eyebrow-light">Deep Learning · HAM10000 · EfficientNetB0</p>
+    <h1>Screening support for<br>pigmented skin lesions</h1>
+    <p class="hero-lede">
+      A seven-class dermoscopic image classifier trained on 10,015 annotated
+      lesions, optimised for melanoma recall — the metric that matters most
+      when the cost of a missed case is measured in years of life.
+    </p>
+  </div>
+</section>
+
+<div class="wrap breadcrumb">
+  <a href="/">Home</a><span>›</span><span aria-current="page">Lesion Analysis</span>
+</div>
+
+<main class="wrap layout">
+
+  <aside class="sidebar">
+    <p class="sidebar-title">On this page</p>
+    <ol class="sidebar-nav">
+      <li><a href="#analysis">Submit an image</a></li>
+      <li><a href="#assessment">Assessment</a></li>
+      <li><a href="#classes">Classification scheme</a></li>
+      <li><a href="#methodology">Methodology</a></li>
+      <li><a href="#limitations">Limitations</a></li>
+    </ol>
+    <div class="sidebar-figure">
+      <p class="figure-num">98%<sup>+</sup></p>
+      <p class="figure-cap">Validation accuracy, lesion-level split</p>
+    </div>
+    <div class="sidebar-figure">
+      <p class="figure-num">7</p>
+      <p class="figure-cap">Diagnostic categories</p>
+    </div>
+  </aside>
+
+  <div class="content">
+
+    <div class="notice notice-critical" role="note">
+      <p class="notice-label">Important — not a medical device</p>
+      <p>
+        DermAI is a university research prototype. It does not diagnose, and it
+        must never be used to decide whether to seek care. The model was trained
+        exclusively on <strong>dermoscopic</strong> images captured with a
+        contact dermatoscope; ordinary phone photographs fall outside its
+        training distribution and results on them are unreliable. Any concern
+        about a mole or skin lesion belongs with a qualified dermatologist.
+      </p>
+    </div>
+
+    <!-- ─────────────────────────── STEP 1 ─────────────────────────── -->
+    <section id="analysis" class="step">
+      <p class="eyebrow">Step 01</p>
+      <h2>Submit a lesion image</h2>
+      <p class="lede">
+        Upload a single dermoscopic image. The file is processed in memory on
+        this machine and is never transmitted to a third party or stored on disk.
+      </p>
+
+      <div id="dropzone" class="dropzone" tabindex="0" role="button"
+           aria-label="Upload a lesion image">
+        <svg class="dz-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 32V10m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 30v6a4 4 0 004 4h28a4 4 0 004-4v-6" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-primary">Drop an image here, or <span>browse files</span></p>
+        <p class="dz-secondary">JPEG or PNG · resized to 224 × 224 for inference</p>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+      </div>
+
+      <p id="uploadError" class="field-error" hidden></p>
+    </section>
+
+    <!-- ─────────────────────────── STEP 2 ─────────────────────────── -->
+    <section id="scanStep" class="step" hidden>
+      <p class="eyebrow">Step 02</p>
+      <h2>Image analysis</h2>
+
+      <div class="scan-grid">
+        <figure class="scan-frame">
+          <img id="preview" alt="Submitted lesion">
+          <div class="reticle" aria-hidden="true">
+            <span class="c tl"></span><span class="c tr"></span>
+            <span class="c bl"></span><span class="c br"></span>
+          </div>
+          <div id="scanline" class="scanline" aria-hidden="true"></div>
+          <div id="scanmesh" class="scanmesh" aria-hidden="true"></div>
+          <figcaption id="scanCaption">Acquiring image…</figcaption>
+        </figure>
+
+        <ol id="pipeline" class="pipeline">
+          <li data-step="decode"><span class="tick"></span>Decode &amp; orient (EXIF)</li>
+          <li data-step="resize"><span class="tick"></span>Bilinear resize → 224 × 224</li>
+          <li data-step="scale"><span class="tick"></span>Retain raw [0, 255] range</li>
+          <li data-step="infer"><span class="tick"></span>EfficientNetB0 forward pass</li>
+          <li data-step="soft"><span class="tick"></span>Softmax over 7 classes</li>
+          <li data-step="risk"><span class="tick"></span>Aggregate malignant probability</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── STEP 3 ─────────────────────────── -->
+    <section id="assessment" class="step" hidden>
+      <p class="eyebrow">Step 03</p>
+      <h2>Assessment</h2>
+
+      <div id="verdict" class="verdict">
+        <div class="verdict-head">
+          <span id="verdictDot" class="verdict-dot" aria-hidden="true"></span>
+          <div>
+            <p id="verdictBand" class="verdict-band">—</p>
+            <p id="verdictLine" class="verdict-line">—</p>
+          </div>
+        </div>
+        <div class="verdict-metrics">
+          <div class="metric">
+            <p class="metric-label">Most probable class</p>
+            <p id="mTop" class="metric-value">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric-label">Melanoma probability</p>
+            <p id="mMel" class="metric-value">—</p>
+          </div>
+          <div class="metric">
+            <p class="metric-label">Malignant group total</p>
+            <p id="mMal" class="metric-value">—</p>
+          </div>
+        </div>
+        <p id="verdictNote" class="verdict-note"></p>
+      </div>
+
+      <h3 class="sub">Probability distribution</h3>
+      <table class="dist">
+        <thead>
+          <tr><th scope="col">Class</th><th scope="col">Category</th>
+              <th scope="col" class="num">Probability</th></tr>
+        </thead>
+        <tbody id="distBody"></tbody>
+      </table>
+
+      <button id="resetBtn" class="btn btn-ghost" type="button">Analyse another image</button>
+    </section>
+
+    <!-- ───────────────────── REFERRAL (conditional) ───────────────── -->
+    <section id="referral" class="step" hidden>
+      <p class="eyebrow">Next steps</p>
+      <h2>Find dermatological care</h2>
+      <p class="lede">
+        The model flagged features associated with malignant categories. This is
+        not a diagnosis — it is a prompt to have the lesion examined in person.
+      </p>
+
+      <div class="care">
+        <div class="care-actions">
+          <button id="locBtn" class="btn btn-primary" type="button">
+            Use my location to find nearby clinics
+          </button>
+          <p id="locStatus" class="loc-status">
+            Your coordinates stay in the browser — they are only used to build a
+            map search link and are never sent to DermAI.
+          </p>
+        </div>
+        <div id="mapLinks" class="map-links" hidden>
+          <a id="gmaps" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Google Maps</span>
+            <span class="map-title">Dermatologists near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+          <a id="amaps" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Apple Maps</span>
+            <span class="map-title">Dermatologists near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+          <a id="ghosp" class="map-card" target="_blank" rel="noopener">
+            <span class="map-kind">Google Maps</span>
+            <span class="map-title">Hospitals near you</span>
+            <span class="map-go">Open ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <h3 class="sub">Understanding what happens next</h3>
+      <p class="lede lede-tight">
+        Curated searches on established clinical channels. Links open a YouTube
+        search rather than a fixed video, so they stay current.
+      </p>
+      <div class="videos">
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=ABCDE+rule+melanoma+dermatologist+explains"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Self-examination</span>
+          <span class="video-title">The ABCDE rule for melanoma</span>
+          <span class="video-desc">Asymmetry, Border, Colour, Diameter, Evolving — what dermatologists look for.</span>
+        </a>
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=how+to+check+your+skin+for+skin+cancer+dermatologist"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Screening</span>
+          <span class="video-title">How to perform a skin self-check</span>
+          <span class="video-desc">A systematic method for examining your own skin between appointments.</span>
+        </a>
+        <a class="video-card"
+           href="https://www.youtube.com/results?search_query=what+to+expect+skin+biopsy+dermatology+appointment"
+           target="_blank" rel="noopener">
+          <span class="video-tag">Clinical visit</span>
+          <span class="video-title">What to expect at the appointment</span>
+          <span class="video-desc">Dermoscopy, biopsy and how results are usually communicated.</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────── REFERENCE ──────────────────────── -->
+    <section id="classes" class="step">
+      <p class="eyebrow">Reference</p>
+      <h2>Classification scheme</h2>
+      <p class="lede">
+        The seven HAM10000 diagnostic categories, grouped by clinical
+        significance. The malignant group drives the risk aggregation above.
+      </p>
+      <table class="dist dist-static">
+        <thead>
+          <tr><th scope="col">Code</th><th scope="col">Diagnosis</th><th scope="col">Category</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>mel</code></td><td>Melanoma<span class="row-note">The primary optimisation target — highest clinical cost if missed.</span></td><td><span class="pill pill-mal">Malignant</span></td></tr>
+          <tr><td><code>bcc</code></td><td>Basal Cell Carcinoma<span class="row-note">Most common skin cancer; locally invasive, rarely metastasises.</span></td><td><span class="pill pill-mal">Malignant</span></td></tr>
+          <tr><td><code>akiec</code></td><td>Actinic Keratoses / Intraepithelial Carcinoma<span class="row-note">Sun-damage lesion that may progress to squamous cell carcinoma.</span></td><td><span class="pill pill-mal">Pre-malignant</span></td></tr>
+          <tr><td><code>nv</code></td><td>Melanocytic Nevus<span class="row-note">Ordinary mole — the majority class, roughly 67% of the dataset.</span></td><td><span class="pill pill-ben">Benign</span></td></tr>
+          <tr><td><code>bkl</code></td><td>Benign Keratosis-like Lesion<span class="row-note">Seborrhoeic keratoses, solar lentigines and related findings.</span></td><td><span class="pill pill-ben">Benign</span></td></tr>
+          <tr><td><code>df</code></td><td>Dermatofibroma<span class="row-note">Rarest class at n=115 — the tail of the 58:1 imbalance.</span></td><td><span class="pill pill-ben">Benign</span></td></tr>
+          <tr><td><code>vasc</code></td><td>Vascular Lesion<span class="row-note">Angiomas, haemorrhages and other vascular findings.</span></td><td><span class="pill pill-ben">Benign</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="methodology" class="step">
+      <p class="eyebrow">Methodology</p>
+      <h2>How the model was built</h2>
+
+      <div class="method">
+        <article>
+          <h3>Lesion-level splitting</h3>
+          <p>
+            HAM10000 contains several images of the same physical lesion.
+            Splitting at image level would place near-duplicates on both sides
+            of the train/validation boundary, inflating accuracy without
+            improving real performance. The split is therefore performed over
+            unique <code>lesion_id</code> values, at 85 / 15.
+          </p>
+        </article>
+        <article>
+          <h3>Class imbalance, 58 : 1</h3>
+          <p>
+            Minority classes are oversampled on the training split only, until
+            each reaches 50% of the majority count; validation keeps the true
+            distribution. <code>class_weight</code> was tried first and failed
+            to converge — at 58 : 1 the reweighted gradients dominate early
+            updates. Duplicated rows receive independent augmentation each
+            epoch, so the effective inputs differ.
+          </p>
+        </article>
+        <article>
+          <h3>Two-stage LP-FT</h3>
+          <p>
+            Linear probing trains the classifier head against a frozen
+            EfficientNetB0 backbone, so the randomly-initialised head cannot
+            push large gradients into pretrained weights. Fine-tuning then
+            unfreezes the backbone at a tenth of the learning rate.
+          </p>
+        </article>
+        <article>
+          <h3>Frozen BatchNormalization</h3>
+          <p>
+            During fine-tuning every BatchNormalization layer stays frozen. Left
+            trainable, HAM10000's small oversampled batch statistics overwrite
+            the ImageNet running statistics, which surfaces as a validation loss
+            explosion within a few epochs.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="limitations" class="step">
+      <p class="eyebrow">Limitations</p>
+      <h2>What this system cannot do</h2>
+      <ul class="limits">
+        <li>
+          <strong>It is not a diagnosis.</strong> Output is a probability
+          distribution from a research model, not a clinical finding.
+        </li>
+        <li>
+          <strong>Dermoscopic images only.</strong> Training data was captured
+          through a contact dermatoscope under controlled lighting. Phone
+          photographs are out of distribution and degrade accuracy substantially.
+        </li>
+        <li>
+          <strong>Population skew.</strong> HAM10000 is drawn largely from
+          European populations and lighter skin phototypes; performance on
+          darker skin is not validated here.
+        </li>
+        <li>
+          <strong>Headline accuracy is not the clinical metric.</strong> With
+          67% of the dataset in a single benign class, overall accuracy is a
+          weak signal — melanoma recall is the number that matters, and a
+          confident benign prediction never rules out cancer.
+        </li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <p class="footer-brand">Derm<span>AI</span></p>
+      <p class="footer-note">
+        N. Barış Çelik · Computer Engineering, Yıldız Teknik Üniversitesi<br>
+        Research prototype — no clinical use.
+      </p>
+    </div>
+    <div class="footer-meta">
+      <p><span>Architecture</span> EfficientNetB0, ImageNet initialisation</p>
+      <p><span>Dataset</span> HAM10000 — 10,015 dermoscopic images</p>
+      <p><span>Protocol</span> LP-FT, BatchNorm frozen at fine-tune</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
