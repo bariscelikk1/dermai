@@ -50,6 +50,11 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
    bodies well below the size of a modern camera file. EXIF orientation is
    handled server-side, so this only touches dimensions. */
 const MAX_EDGE = 1024;
+/* The server refuses anything over 1 MB, because a larger upload would be
+   spooled to a temporary file and the privacy note promises it is not. A
+   small-but-heavy image (an uncompressed PNG, say) needs re-encoding even
+   when its dimensions are already fine. */
+const MAX_BYTES = 1024 * 1024;
 
 function downscale(file) {
   return new Promise((resolve) => {
@@ -61,14 +66,14 @@ function downscale(file) {
       const scale = Math.min(1, MAX_EDGE / Math.max(w, h));
 
       // Already small enough, or an image type we would rather not re-encode.
-      if (scale === 1) {
+      if (scale === 1 && file.size <= MAX_BYTES) {
         URL.revokeObjectURL(url);
         return resolve(file);
       }
 
       const canvas = document.createElement("canvas");
-      canvas.width = Math.round(w * scale);
-      canvas.height = Math.round(h * scale);
+      canvas.width = Math.round(w * scale) || w;
+      canvas.height = Math.round(h * scale) || h;
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -77,7 +82,7 @@ function downscale(file) {
       canvas.toBlob(
         (blob) => resolve(blob && blob.size < file.size ? blob : file),
         "image/jpeg",
-        0.92
+        0.85
       );
     };
 

@@ -255,8 +255,8 @@
       <p class="eyebrow">Data handling</p>
       <h2>What happens to a submitted image</h2>
       <ul class="limits">
-        <li><strong>Downscaled before it leaves your device.</strong> The browser reduces the image to at most 1,024 pixels on its longest edge before upload — the model only ever sees 224 × 224, so full-resolution transfer would be wasted bandwidth.</li>
-        <li><strong>Held in memory only.</strong> The server decodes the upload into an array, runs inference, and discards it. Nothing is written to disk.</li>
+        <li><strong>Downscaled before it leaves your device.</strong> The browser reduces the image to at most 1,024 pixels on its longest edge, and re-encodes it if it still exceeds 1 MB, before upload — the model only ever sees 224 × 224, so full-resolution transfer would be wasted bandwidth.</li>
+        <li><strong>Held in memory only.</strong> The server decodes the upload into an array, runs inference, and discards it. Uploads are capped at 1 MB precisely so this holds: past that size the web framework would buffer the file to temporary storage, so anything larger is refused rather than written anywhere.</li>
         <li><strong>Not logged, not retained, not shared.</strong> No image, prediction, or derived feature is stored or transmitted onward.</li>
         <li><strong>Location never reaches the server.</strong> If you use the clinic finder, geolocation is read in the browser and used only to construct outbound map links.</li>
       </ul>

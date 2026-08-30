@@ -27,6 +27,11 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image, ImageOps
 
 IMG_SIZE = 224
+# Starlette buffers an upload in memory only up to 1 MB and spools anything
+# larger to a temporary file. The analyse page promises the image is never
+# written to disk, so refuse oversized uploads rather than break that promise.
+# The browser downscales to a 1024px JPEG (~300 KB); 1 MB is ample headroom.
+MAX_UPLOAD_BYTES = 1024 * 1024
 CLASS_NAMES = ["akiec", "bcc", "bkl", "df", "mel", "nv", "vasc"]
 
 # Clinical grouping. akiec/bcc/mel are malignant or pre-malignant; the rest
@@ -155,9 +160,15 @@ def health():
 
 @app.post("/api/predict")
 def predict(file: UploadFile = File(...)):
-    raw = file.file.read()
+    raw = file.file.read(MAX_UPLOAD_BYTES + 1)
     if not raw:
         raise HTTPException(status_code=400, detail="Empty upload.")
+    if len(raw) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail="Image is larger than 1 MB after downscaling. "
+            "Please submit a smaller image.",
+        )
 
     batch = preprocess(raw)
     interpreter = get_model()
