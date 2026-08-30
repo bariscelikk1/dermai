@@ -1,7 +1,14 @@
 """DermAI inference server.
 
 Serves the static clinical UI and exposes a single prediction endpoint that
-runs the fine-tuned EfficientNetB0 checkpoint (`best_model_ft.keras`).
+runs the fine-tuned EfficientNetB0 checkpoint, converted to TensorFlow Lite
+(`best_model_ft.tflite`).
+
+TensorFlow itself is not imported here. The full package installs to ~1.4 GB,
+which blew past Vercel's 500 MB function limit; the Lite runtime is a few MB
+because it only runs models, it cannot train them. The conversion cost is a
+shift of ~0.01 in the reported probabilities, which never changed the top
+class in testing.
 
 Preprocessing here mirrors `dermai.data._decode` exactly — decode to RGB,
 bilinear resize to 224x224, and keep pixels in the raw [0, 255] range,
@@ -14,7 +21,6 @@ import os
 from pathlib import Path
 
 import numpy as np
-import tensorflow as tf
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -70,11 +76,22 @@ ROOT = Path(__file__).resolve().parent.parent
 # /api/* reaches this process. Locally, uvicorn serves them from the same dir.
 STATIC = ROOT / "public"
 MODEL_PATH = Path(
-    os.environ.get("DERMAI_MODEL", ROOT / "models" / "best_model_ft.keras")
+    os.environ.get("DERMAI_MODEL", ROOT / "models" / "best_model_ft.tflite")
 )
 
 app = FastAPI(title="DermAI")
 _model = None
+
+
+def _interpreter_class():
+    """LiteRT in deployment; fall back to TensorFlow's copy for local dev."""
+    try:
+        from ai_edge_litert.interpreter import Interpreter
+    except ImportError:  # a dev machine with full TensorFlow installed
+        import tensorflow as tf
+
+        return tf.lite.Interpreter
+    return Interpreter
 
 
 def get_model():
@@ -86,8 +103,35 @@ def get_model():
                 status_code=503,
                 detail=f"Model checkpoint not found at {MODEL_PATH}.",
             )
-        _model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+        interpreter = _interpreter_class()(model_path=str(MODEL_PATH))
+        interpreter.allocate_tensors()
+        _model = interpreter
     return _model
+
+
+def resize_bilinear(arr: np.ndarray, size: int) -> np.ndarray:
+    """Half-pixel-centre bilinear resize, no antialiasing.
+
+    Reproduces `tf.image.resize` to within floating-point rounding. Pillow's
+    own resize is not equivalent: it antialiases when shrinking, so it would
+    feed the model smoother images than training ever saw.
+    """
+    src_h, src_w = arr.shape[:2]
+
+    def axis(n_out: int, n_in: int):
+        pos = (np.arange(n_out) + 0.5) * (n_in / n_out) - 0.5
+        pos = np.clip(pos, 0, n_in - 1)
+        low = np.floor(pos).astype(int)
+        high = np.minimum(low + 1, n_in - 1)
+        return low, high, (pos - low).astype(np.float32)
+
+    y0, y1, wy = axis(size, src_h)
+    x0, x1, wx = axis(size, src_w)
+    top_left, top_right = arr[y0][:, x0], arr[y0][:, x1]
+    bot_left, bot_right = arr[y1][:, x0], arr[y1][:, x1]
+    top = top_left + (top_right - top_left) * wx[None, :, None]
+    bottom = bot_left + (bot_right - bot_left) * wx[None, :, None]
+    return top + (bottom - top) * wy[:, None, None]
 
 
 def preprocess(raw: bytes) -> np.ndarray:
@@ -99,9 +143,9 @@ def preprocess(raw: bytes) -> np.ndarray:
     except Exception:
         raise HTTPException(status_code=400, detail="Could not read that image file.")
 
-    arr = tf.convert_to_tensor(np.asarray(img), dtype=tf.float32)
-    arr = tf.image.resize(arr, [IMG_SIZE, IMG_SIZE])  # bilinear, as in training
-    return tf.expand_dims(arr, 0).numpy()
+    arr = np.asarray(img, dtype=np.float32)
+    arr = resize_bilinear(arr, IMG_SIZE)  # bilinear, as in training
+    return arr[None].astype(np.float32)
 
 
 @app.get("/api/health")
@@ -116,7 +160,12 @@ def predict(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Empty upload.")
 
     batch = preprocess(raw)
-    probs = get_model().predict(batch, verbose=0)[0].astype(float)
+    interpreter = get_model()
+    inputs = interpreter.get_input_details()[0]
+    outputs = interpreter.get_output_details()[0]
+    interpreter.set_tensor(inputs["index"], batch)
+    interpreter.invoke()
+    probs = interpreter.get_tensor(outputs["index"])[0].astype(float)
 
     classes = [
         {

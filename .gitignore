@@ -10,6 +10,11 @@ outputs/
 .DS_Store
 kaggle.json
 models/
+# ...except the deployed LiteRT model: 4.3 MB, and the function is useless
+# without it. The 47 MB .keras checkpoint stays out.
+!models/
+models/*
+!models/best_model_ft.tflite
 .venv/
 
 # personal learning notes — never publish
