@@ -2,6 +2,10 @@
 
 const $ = (id) => document.getElementById(id);
 
+/* The analyser now appears twice: inline on the homepage, and on the full
+   analyse page which additionally carries the referral / clinic finder.
+   Anything below that is optional is null-checked rather than assumed. */
+
 const dropzone   = $("dropzone");
 const fileInput  = $("fileInput");
 const uploadErr  = $("uploadError");
@@ -136,7 +140,7 @@ async function handleFile(file) {
 
   preview.src = URL.createObjectURL(file);
   assessment.hidden = true;
-  referral.hidden = true;
+  if (referral) referral.hidden = true;
   scanStep.hidden = false;
   scanStep.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -243,13 +247,13 @@ function render(r) {
   });
 
   assessment.hidden = false;
-  referral.hidden = !band.referral;
+  if (referral) referral.hidden = !band.referral;
   assessment.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /* ── geolocation → map links ────────────────────────────── */
 
-$("locBtn").addEventListener("click", () => {
+$("locBtn")?.addEventListener("click", () => {
   const status = $("locStatus");
 
   if (!navigator.geolocation) {
@@ -293,11 +297,14 @@ function showMaps(coords) {
 
 /* ── reset ──────────────────────────────────────────────── */
 
-$("resetBtn").addEventListener("click", () => {
+$("resetBtn")?.addEventListener("click", () => {
   fileInput.value = "";
   scanStep.hidden = true;
   assessment.hidden = true;
-  referral.hidden = true;
-  $("mapLinks").hidden = true;
-  document.getElementById("analysis").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (referral) referral.hidden = true;
+  const maps = $("mapLinks");
+  if (maps) maps.hidden = true;
+  // "analysis" on the full page, "try" on the homepage.
+  ($("analysis") || $("try") || dropzone)
+    .scrollIntoView({ behavior: "smooth", block: "start" });
 });

@@ -16,17 +16,23 @@
   <div class="hero-art" aria-hidden="true"></div>
   <div class="wrap hero-inner">
     <p class="eyebrow eyebrow-light">Undergraduate Research Project · Computer Engineering</p>
-    <h1>Deep learning for the<br>early recognition of<br>pigmented skin lesions</h1>
+    <h1>Submit a lesion image.<br>Get a seven-class<br>assessment in seconds.</h1>
     <p class="hero-lede">
-      DermAI is a seven-class dermoscopic image classifier trained on the
-      HAM10000 archive of 10,015 annotated lesions. It is optimised not for
-      headline accuracy but for <em>melanoma recall</em> — because in skin
-      cancer, the two kinds of error do not cost the same.
+      <strong>DermAI sorts a dermoscopic image into one of seven diagnostic
+      categories</strong> and reports how much of that probability sits in
+      malignant classes. It is trained on the HAM10000 archive of 10,015
+      annotated lesions, and tuned not for headline accuracy but for
+      <em>melanoma recall</em> — because in skin cancer, the two kinds of
+      error do not cost the same.
     </p>
     <div class="hero-actions">
-      <a class="btn btn-onDark" href="/analyse.html">Open the analysis tool</a>
-      <a class="btn btn-onDarkGhost" href="/method.html">Read the method</a>
+      <a class="btn btn-onDark" href="#try">Try it below ↓</a>
+      <a class="btn btn-onDarkGhost" href="#abstract">Read the research</a>
     </div>
+    <p class="hero-caveat">
+      A research prototype, not a medical device. Trained on dermatoscope
+      images — an ordinary phone photograph is not a valid input.
+    </p>
   </div>
 </section>
 
@@ -59,10 +65,137 @@
   </div>
 </section>
 
+
+<!-- The point of the site. It used to live one click away on analyse.html,
+     which meant a visitor could read the entire homepage without ever
+     learning that there was something here to use. -->
+<section id="try" class="try-band">
+  <div class="wrap">
+    <div class="try-head">
+      <p class="eyebrow eyebrow-light">The tool</p>
+      <h2>Run a lesion through the model</h2>
+      <p class="try-lede">
+        Three steps, entirely on this page. Your image is downscaled in the
+        browser, held in memory on the server for the length of one request,
+        and never stored.
+      </p>
+    </div>
+
+    <ol class="try-steps">
+      <li><span class="try-n">01</span><p><strong>Submit</strong> a dermoscopic image — drag it in or browse.</p></li>
+      <li><span class="try-n">02</span><p><strong>The model runs</strong> — resize to 224 × 224, EfficientNet-B0, softmax over 7 classes.</p></li>
+      <li><span class="try-n">03</span><p><strong>Read the assessment</strong> — full distribution, malignant probability, risk band.</p></li>
+    </ol>
+
+    <div class="try-panel">
+      <div class="notice notice-critical" role="note">
+        <p class="notice-label">Important — not a medical device</p>
+        <p>
+          This is an undergraduate research prototype with no regulatory
+          approval, trained exclusively on images captured through a contact
+          dermatoscope. A smartphone photograph is an out-of-distribution
+          input: the model will still return a confident-looking answer, and
+          that confidence will not mean anything. Never use this output to
+          decide whether to seek care.
+        </p>
+      </div>
+
+      <div id="dropzone" class="dropzone" tabindex="0" role="button"
+           aria-label="Upload a lesion image">
+        <svg class="dz-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 32V10m0 0l-8 8m8-8l8 8" fill="none" stroke="currentColor"
+                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 30v6a4 4 0 004 4h28a4 4 0 004-4v-6" fill="none"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-primary">Drop an image here, or <span>browse files</span></p>
+        <p class="dz-secondary">JPEG or PNG · downscaled in-browser, then resized to 224 × 224 for inference</p>
+        <input type="file" id="fileInput" accept="image/*" hidden>
+      </div>
+
+      <p id="uploadError" class="field-error" hidden></p>
+
+      <section id="scanStep" class="step" hidden>
+        <p class="eyebrow">Step 02</p>
+        <h2>Image analysis</h2>
+        <div class="scan-grid">
+          <figure class="scan-frame">
+            <img id="preview" alt="Submitted lesion">
+            <div class="reticle" aria-hidden="true">
+              <span class="c tl"></span><span class="c tr"></span>
+              <span class="c bl"></span><span class="c br"></span>
+            </div>
+            <div id="scanline" class="scanline" aria-hidden="true"></div>
+            <div id="scanmesh" class="scanmesh" aria-hidden="true"></div>
+            <figcaption id="scanCaption">Acquiring image…</figcaption>
+          </figure>
+          <ol id="pipeline" class="pipeline">
+            <li data-step="decode"><span class="tick"></span>Decode &amp; orient (EXIF)</li>
+            <li data-step="resize"><span class="tick"></span>Bilinear resize → 224 × 224</li>
+            <li data-step="scale"><span class="tick"></span>Retain raw [0, 255] range</li>
+            <li data-step="infer"><span class="tick"></span>EfficientNet-B0 forward pass</li>
+            <li data-step="soft"><span class="tick"></span>Softmax over 7 classes</li>
+            <li data-step="risk"><span class="tick"></span>Aggregate malignant probability</li>
+          </ol>
+        </div>
+      </section>
+
+
+      <section id="assessment" class="step" hidden>
+        <p class="eyebrow">Step 03</p>
+        <h2>Assessment</h2>
+
+        <div id="verdict" class="verdict">
+          <div class="verdict-head">
+            <span id="verdictDot" class="verdict-dot" aria-hidden="true"></span>
+            <div>
+              <p id="verdictBand" class="verdict-band">—</p>
+              <p id="verdictLine" class="verdict-line">—</p>
+            </div>
+          </div>
+          <div class="verdict-metrics">
+            <div class="metric">
+              <p class="metric-label">Most probable class</p>
+              <p id="mTop" class="metric-value">—</p>
+            </div>
+            <div class="metric">
+              <p class="metric-label">Melanoma probability</p>
+              <p id="mMel" class="metric-value">—</p>
+            </div>
+            <div class="metric">
+              <p class="metric-label">Malignant group total</p>
+              <p id="mMal" class="metric-value">—</p>
+            </div>
+          </div>
+          <p id="verdictNote" class="verdict-note"></p>
+        </div>
+
+        <h3 class="sub">Probability distribution</h3>
+        <table class="dist">
+          <thead>
+            <tr><th scope="col">Class</th><th scope="col">Category</th>
+                <th scope="col" class="num">Probability</th></tr>
+          </thead>
+          <tbody id="distBody"></tbody>
+        </table>
+
+        <button id="resetBtn" class="btn btn-ghost" type="button">Analyse another image</button>
+      </section>
+
+      <p class="try-more">
+        The full analysis page adds the risk-band derivation, a data-handling
+        note and a route to dermatological care —
+        <a href="/analyse.html">open it here</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
 <main class="wrap layout">
   <aside class="sidebar">
     <p class="sidebar-title">On this page</p>
     <ol class="sidebar-nav">
+      <li><a href="#try">Try the model</a></li>
       <li><a href="#abstract">Abstract</a></li>
       <li><a href="#rationale">Rationale</a></li>
       <li><a href="#questions">Research questions</a></li>
@@ -318,5 +451,6 @@
 </main>
 
 <script src="/chrome.js"></script>
+<script src="/app.js"></script>
 </body>
 </html>
