@@ -1,4 +1,4 @@
-/* DermAI — upload → scan → assessment flow */
+/* DermAI, upload → scan → assessment flow */
 
 const $ = (id) => document.getElementById(id);
 
@@ -28,7 +28,7 @@ const BANDS = {
     referral: false,
   },
   moderate: {
-    title: "Indeterminate — review advised",
+    title: "Indeterminate, review advised",
     line: "Meaningful probability mass sits in malignant categories.",
     note: "The model is not confident either way. In a clinical setting this " +
           "is exactly the case that gets escalated to a specialist rather " +
@@ -38,7 +38,7 @@ const BANDS = {
   high: {
     title: "Malignant features detected",
     line: "The distribution is dominated by malignant categories.",
-    note: "Treat this as a prompt to book an appointment, not as a diagnosis — " +
+    note: "Treat this as a prompt to book an appointment, not as a diagnosis, " +
           "only a dermatologist, usually with dermoscopy and if needed a " +
           "biopsy, can determine what this lesion actually is. Early-detected " +
           "melanoma is highly treatable; delay is what causes harm.",
@@ -50,7 +50,7 @@ const pct = (v) => (v * 100).toFixed(1) + "%";
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /* Downscale before upload. The model only ever sees 224x224, so sending a
-   12-megapixel phone photo wastes bandwidth — and some hosts cap request
+   12-megapixel phone photo wastes bandwidth, and some hosts cap request
    bodies well below the size of a modern camera file. EXIF orientation is
    handled server-side, so this only touches dimensions. */
 const MAX_EDGE = 1024;
@@ -268,7 +268,7 @@ $("locBtn")?.addEventListener("click", () => {
       const { latitude: lat, longitude: lon } = pos.coords;
       status.textContent =
         `Location resolved to ${lat.toFixed(3)}, ${lon.toFixed(3)}. ` +
-        `These links open in your map app — your coordinates were never sent to DermAI.`;
+        `These links open in your map app, your coordinates were never sent to DermAI.`;
       showMaps({ lat, lon });
     },
     () => {

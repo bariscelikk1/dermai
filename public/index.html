@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DermAI — Deep Learning for Dermoscopic Lesion Classification</title>
+<title>DermAI · Deep Learning for Dermoscopic Lesion Classification</title>
 <meta name="description" content="A seven-class dermoscopic skin lesion classifier built on EfficientNet-B0 and the HAM10000 dataset, optimised for melanoma recall.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -22,7 +19,7 @@
       categories</strong> and reports how much of that probability sits in
       malignant classes. It is trained on the HAM10000 archive of 10,015
       annotated lesions, and tuned not for headline accuracy but for
-      <em>melanoma recall</em> — because in skin cancer, the two kinds of
+      <em>melanoma recall</em>, because in skin cancer, the two kinds of
       error do not cost the same.
     </p>
     <div class="hero-actions">
@@ -30,8 +27,9 @@
       <a class="btn btn-onDarkGhost" href="#abstract">Read the research</a>
     </div>
     <p class="hero-caveat">
-      A research prototype, not a medical device. Trained on dermatoscope
-      images — an ordinary phone photograph is not a valid input.
+      A research prototype, not a medical device. It is trained on
+      dermatoscope images, so an ordinary phone photograph is not a
+      valid input.
     </p>
   </div>
 </section>
@@ -82,14 +80,14 @@
     </div>
 
     <ol class="try-steps">
-      <li><span class="try-n">01</span><p><strong>Submit</strong> a dermoscopic image — drag it in or browse.</p></li>
-      <li><span class="try-n">02</span><p><strong>The model runs</strong> — resize to 224 × 224, EfficientNet-B0, softmax over 7 classes.</p></li>
-      <li><span class="try-n">03</span><p><strong>Read the assessment</strong> — full distribution, malignant probability, risk band.</p></li>
+      <li><span class="try-n">01</span><p><strong>Submit</strong> a dermoscopic image, by dragging it in or browsing.</p></li>
+      <li><span class="try-n">02</span><p><strong>The model runs</strong>: resize to 224 × 224, EfficientNet-B0, softmax over 7 classes.</p></li>
+      <li><span class="try-n">03</span><p><strong>Read the assessment</strong>: full distribution, malignant probability, risk band.</p></li>
     </ol>
 
     <div class="try-panel">
       <div class="notice notice-critical" role="note">
-        <p class="notice-label">Important — not a medical device</p>
+        <p class="notice-label">Important: not a medical device</p>
         <p>
           This is an undergraduate research prototype with no regulatory
           approval, trained exclusively on images captured through a contact
@@ -149,22 +147,22 @@
           <div class="verdict-head">
             <span id="verdictDot" class="verdict-dot" aria-hidden="true"></span>
             <div>
-              <p id="verdictBand" class="verdict-band">—</p>
-              <p id="verdictLine" class="verdict-line">—</p>
+              <p id="verdictBand" class="verdict-band">-</p>
+              <p id="verdictLine" class="verdict-line">-</p>
             </div>
           </div>
           <div class="verdict-metrics">
             <div class="metric">
               <p class="metric-label">Most probable class</p>
-              <p id="mTop" class="metric-value">—</p>
+              <p id="mTop" class="metric-value">-</p>
             </div>
             <div class="metric">
               <p class="metric-label">Melanoma probability</p>
-              <p id="mMel" class="metric-value">—</p>
+              <p id="mMel" class="metric-value">-</p>
             </div>
             <div class="metric">
               <p class="metric-label">Malignant group total</p>
-              <p id="mMal" class="metric-value">—</p>
+              <p id="mMal" class="metric-value">-</p>
             </div>
           </div>
           <p id="verdictNote" class="verdict-note"></p>
@@ -184,8 +182,7 @@
 
       <p class="try-more">
         The full analysis page adds the risk-band derivation, a data-handling
-        note and a route to dermatological care —
-        <a href="/analyse.html">open it here</a>.
+        note and a route to dermatological care, <a href="/analyse.html">open it here</a>.
       </p>
     </div>
   </div>
@@ -216,7 +213,7 @@
   <div class="content">
 
     <div class="notice notice-critical" role="note">
-      <p class="notice-label">Important — not a medical device</p>
+      <p class="notice-label">Important: not a medical device</p>
       <p>
         DermAI is a research prototype developed for academic purposes. It does
         not diagnose disease and carries no regulatory approval of any kind. It
@@ -265,7 +262,7 @@
       </p>
       <p class="lede">
         The metric that carries clinical meaning is <strong>recall on the
-        melanoma class</strong> — of all true melanomas presented, what
+        melanoma class</strong>: of all true melanomas presented, what
         proportion did the system flag? A missed melanoma may progress through
         the survival gradient above. A false alarm, by contrast, costs an
         outpatient appointment and a period of anxiety. These are not
@@ -337,7 +334,7 @@
             images it has effectively memorised. The partition is therefore
             performed over unique lesion identifiers.
           </p>
-          <p class="problem-file">Resolved in <code>data.py</code> — <code>lesion_level_split()</code></p>
+          <p class="problem-file">Resolved in <code>data.py</code>, <code>lesion_level_split()</code></p>
         </article>
 
         <article class="problem">
@@ -348,10 +345,10 @@
             (n = 115), by roughly 58 to 1. Loss reweighting through
             <code>class_weight</code> was attempted first and failed to
             converge, as the reweighted minority gradients dominated early
-            updates. Bounded oversampling of the training split — raising each
-            class to 50% of the majority count — converged stably.
+            updates. Bounded oversampling of the training split (raising each
+            class to 50% of the majority count) converged stably.
           </p>
-          <p class="problem-file">Resolved in <code>data.py</code> — <code>oversample()</code></p>
+          <p class="problem-file">Resolved in <code>data.py</code>, <code>oversample()</code></p>
         </article>
 
         <article class="problem">
@@ -364,7 +361,7 @@
             first, then fine-tuning at a tenth of the learning rate, preserves
             them. BatchNormalization layers stay frozen throughout.
           </p>
-          <p class="problem-file">Resolved in <code>model.py</code> — <code>unfreeze_for_finetune()</code></p>
+          <p class="problem-file">Resolved in <code>model.py</code>, <code>unfreeze_for_finetune()</code></p>
         </article>
 
         <article class="problem">
@@ -394,7 +391,7 @@
             <li>Apply the LP-FT protocol of Kumar et al. to a medical imaging task, with BatchNorm handling documented explicitly.</li>
             <li>Report a lesion-level rather than image-level evaluation, avoiding a common source of inflated results in this dataset.</li>
             <li>Treat melanoma recall as the primary endpoint and justify that choice epidemiologically.</li>
-            <li>Document negative results — specifically the failure of loss reweighting — rather than presenting only the successful path.</li>
+            <li>Document negative results (specifically the failure of loss reweighting) rather than presenting only the successful path.</li>
           </ul>
         </div>
         <div class="claim claim-no">

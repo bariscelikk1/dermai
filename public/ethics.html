@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ethics &amp; Limitations — DermAI</title>
+<title>Ethics &amp; Limitations · DermAI</title>
 <meta name="description" content="Regulatory status, dataset bias, deployment risk, data protection under KVKK, and the boundaries of responsible use.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -76,7 +73,7 @@
         <strong>intended purpose</strong>: DermAI is presented as a research
         artefact demonstrating a training methodology, not as a tool intended
         for diagnosis. That distinction is only meaningful if the presentation
-        is consistent with it — which is why the disclaimer appears on every
+        is consistent with it, which is why the disclaimer appears on every
         page that returns a prediction, rather than once in a footer.
       </p>
     </section>
@@ -94,7 +91,7 @@
           <strong>Smartphone photography.</strong> Different optics,
           illumination, working distance and colour processing. The subsurface
           structures dermoscopy reveals are simply absent. The model has no
-          mechanism to signal that an input is unfamiliar — softmax always
+          mechanism to signal that an input is unfamiliar. Softmax always
           normalises to one, so an out-of-distribution image yields a confident
           distribution rather than an abstention.
         </li>
@@ -114,8 +111,8 @@
       <div class="callout callout-warn">
         <p class="callout-label">A concrete demonstration</p>
         <p>
-          Presented with uniform random noise — an input containing no lesion
-          at all — the deployed model returns melanocytic nevus with
+          Presented with uniform random noise (an input containing no lesion
+          at all) the deployed model returns melanocytic nevus with
           approximately 98.6% probability. It is not detecting a mole; it is
           falling back on the majority-class prior in the absence of
           recognisable features. High reported confidence is therefore not
@@ -131,7 +128,7 @@
         HAM10000 was assembled principally from Austrian and Australian
         clinical populations. Both skew heavily toward lighter Fitzpatrick
         phototypes. The dataset does not record phototype, so the imbalance
-        cannot be measured directly from the metadata — which is itself part of
+        cannot be measured directly from the metadata, which is itself part of
         the problem.
       </p>
       <p class="lede">
@@ -148,8 +145,8 @@
         <p>
           No performance claim on this site is stratified by skin phototype,
           because the data to make one does not exist in the archive used.
-          Deployment in Türkiye — a population with a substantially different
-          phototype distribution from the training source — would require
+          Deployment in Türkiye (a population with a substantially different
+          phototype distribution from the training source) would require
           validation on local data before any clinical claim could be
           entertained. This is stated as a limitation of the present work and a
           precondition for any continuation of it.
@@ -166,16 +163,16 @@
       </p>
       <div class="two-col">
         <div class="claim claim-no">
-          <p class="claim-head">False negative — the serious failure</p>
+          <p class="claim-head">False negative: the serious failure</p>
           <ul>
             <li>A malignant lesion is reported as benign.</li>
             <li>The user's existing concern is displaced by an apparently authoritative reassurance.</li>
-            <li>Presentation is deferred — potentially across the survival gradient from localized to regional or distant disease.</li>
+            <li>Presentation is deferred, potentially across the survival gradient from localized to regional or distant disease.</li>
             <li>The harm is invisible at the time it occurs, and attributable to the tool only in retrospect.</li>
           </ul>
         </div>
         <div class="claim claim-yes">
-          <p class="claim-head">False positive — the tolerable failure</p>
+          <p class="claim-head">False positive: the tolerable failure</p>
           <ul>
             <li>A benign lesion is flagged as concerning.</li>
             <li>Costs an outpatient appointment, possibly a biopsy, and a period of anxiety.</li>
@@ -225,8 +222,8 @@
       </p>
       <p class="lede">
         This matters more than it might appear. Dermoscopic archives are known
-        to contain confounders — surgical skin markings, rulers and scale
-        bars, adhesive fiducials — that correlate with malignancy because
+        to contain confounders (surgical skin markings, rulers and scale
+        bars, adhesive fiducials) that correlate with malignancy because
         clinicians annotate lesions they already suspect. A classifier can
         learn the marking rather than the lesion and score well on internal
         validation while having learned nothing transferable. This project has
@@ -240,8 +237,8 @@
       <h2>Data protection</h2>
       <p class="lede">
         Under Turkish law (KVKK, Law No. 6698), data concerning health is
-        classified as special-category personal data — <em>özel nitelikli
-        kişisel veri</em> — and is subject to stricter processing conditions
+        classified as special-category personal data, <em>özel nitelikli
+        kişisel veri</em>, and is subject to stricter processing conditions
         than ordinary personal data. An image of a person's skin lesion,
         submitted in a health context, falls within that category. Equivalent
         protections apply under GDPR Article 9.
@@ -259,8 +256,8 @@
         <li><strong>Client-side downscaling.</strong> Images are reduced in the browser before transmission, limiting what crosses the network in the first place.</li>
       </ul>
       <p class="lede lede-tight">
-        Any future version that retained images — for instance to accumulate a
-        local validation set — would change this analysis entirely and would
+        Any future version that retained images (for instance to accumulate a
+        local validation set) would change this analysis entirely and would
         require explicit informed consent, a lawful basis under KVKK Article 6,
         and institutional ethics approval before a single image was stored.
       </p>
@@ -278,7 +275,7 @@
         academic research.
       </p>
       <p class="cite-inline">
-        Tschandl, P., Rosendahl, C. &amp; Kittler, H. The HAM10000 dataset, a
+        Tschandl, P. Rosendahl, C. &amp; Kittler, H. The HAM10000 dataset, a
         large collection of multi-source dermatoscopic images of common
         pigmented skin lesions. <em>Scientific Data</em> 5, 180161 (2018).
       </p>
@@ -295,7 +292,7 @@
       <ol class="rq">
         <li><span class="rq-num">1</span><div><p class="rq-q">External validation</p><p class="rq-a">Evaluation on an independent archive not used in training or model selection, with a genuinely held-out test partition separate from the split used for checkpointing.</p></div></li>
         <li><span class="rq-num">2</span><div><p class="rq-q">Stratified performance reporting</p><p class="rq-a">Metrics disaggregated by Fitzpatrick phototype, anatomical site and lesion subtype, on data where those attributes are recorded.</p></div></li>
-        <li><span class="rq-num">3</span><div><p class="rq-q">Calibration analysis</p><p class="rq-a">Reliability diagrams and calibration error, so that a stated probability corresponds to an observed frequency — a precondition for any threshold to be defensible.</p></div></li>
+        <li><span class="rq-num">3</span><div><p class="rq-q">Calibration analysis</p><p class="rq-a">Reliability diagrams and calibration error, so that a stated probability corresponds to an observed frequency, a precondition for any threshold to be defensible.</p></div></li>
         <li><span class="rq-num">4</span><div><p class="rq-q">Out-of-distribution detection</p><p class="rq-a">A mechanism for the system to decline to answer, rather than returning a confident prior when shown an input it cannot interpret.</p></div></li>
         <li><span class="rq-num">5</span><div><p class="rq-q">Interpretability audit</p><p class="rq-a">Attribution analysis to establish that predictions rest on lesion morphology rather than acquisition artefacts or clinical markings.</p></div></li>
         <li><span class="rq-num">6</span><div><p class="rq-q">Prospective evaluation with clinical oversight</p><p class="rq-a">Institutional ethics approval, informed consent, and a reader study measuring whether clinician performance improves with the tool rather than whether the tool performs well alone.</p></div></li>

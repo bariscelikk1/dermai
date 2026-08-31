@@ -1,4 +1,4 @@
-/* Shared site chrome — header and footer injected on every page,
+/* Shared site chrome: header and footer injected on every page,
    so navigation stays consistent across the seven pages. */
 
 const PAGES = [

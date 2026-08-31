@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Method — DermAI</title>
+<title>Method · DermAI</title>
 <meta name="description" content="Dataset, lesion-level partitioning, imbalance handling, EfficientNet-B0 architecture, and the two-stage LP-FT training protocol.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -20,7 +17,7 @@
     <p class="hero-lede">
       The dataset, the partitioning protocol that prevents leakage, the
       treatment of a 58:1 class imbalance, the network architecture, and the
-      two-stage transfer-learning schedule — with the reasoning behind each
+      two-stage transfer-learning schedule, with the reasoning behind each
       decision.
     </p>
   </div>
@@ -57,8 +54,8 @@
       <p class="eyebrow">2.1</p>
       <h2>Dataset</h2>
       <p class="lede">
-        Training uses <strong>HAM10000</strong> — "Human Against Machine with
-        10000 training images" — published by Tschandl, Rosendahl and Kittler
+        Training uses <strong>HAM10000</strong> ("Human Against Machine with
+        10000 training images") published by Tschandl, Rosendahl and Kittler
         in <em>Scientific Data</em> (2018). The archive aggregates dermoscopic
         images from multiple populations and acquisition modalities, and is
         distributed through the ISIC archive. Ground-truth labels derive from
@@ -103,7 +100,7 @@
 
       <div class="compare">
         <div class="cmp cmp-bad">
-          <p class="cmp-head">Image-level split — rejected</p>
+          <p class="cmp-head">Image-level split, rejected</p>
           <p>
             Shuffling all 10,015 rows and taking 15% for validation places
             near-duplicate photographs of one lesion on both sides of the
@@ -113,7 +110,7 @@
           </p>
         </div>
         <div class="cmp cmp-good">
-          <p class="cmp-head">Lesion-level split — adopted</p>
+          <p class="cmp-head">Lesion-level split, adopted</p>
           <p>
             The set of unique <code>lesion_id</code> values is shuffled under a
             fixed seed and partitioned 85 / 15. Every image inherits the
@@ -129,7 +126,7 @@ rng.shuffle(lesions)
 val_lesions = set(lesions[: int(len(lesions) * 0.15)])
 val_df   = df[ df["lesion_id"].isin(val_lesions)]
 train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
-      <p class="code-cap">Partitioning is performed over lesions, not images — <code>data.py</code>, <code>lesion_level_split()</code>.</p>
+      <p class="code-cap">Partitioning is performed over lesions, not images, <code>data.py</code>, <code>lesion_level_split()</code>.</p>
     </section>
 
     <section id="imbalance" class="step">
@@ -143,7 +140,7 @@ train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
       </p>
 
       <div class="finding finding-neg">
-        <p class="finding-label">Negative result — loss reweighting</p>
+        <p class="finding-label">Negative result, loss reweighting</p>
         <p>
           Keras <code>class_weight</code> was implemented first. At a ratio of
           58:1 the implied weight on the rarest class is large enough that its
@@ -154,7 +151,7 @@ train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
       </div>
 
       <div class="finding finding-pos">
-        <p class="finding-label">Adopted — bounded oversampling</p>
+        <p class="finding-label">Adopted, bounded oversampling</p>
         <p>
           Rows from minority classes are duplicated until each class reaches
           <strong>50% of the majority class count</strong>. The bound is
@@ -209,7 +206,7 @@ train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
           Normalising in the pipeline would apply that transformation twice,
           shifting inputs far outside the distribution the pretrained weights
           expect. The model would still train and still emit confident
-          probabilities — it would simply be worse, silently. The same
+          probabilities, it would simply be worse, silently. The same
           convention is enforced in the inference server so that deployment and
           training preprocessing cannot drift apart.
         </p>
@@ -231,7 +228,7 @@ train_df = df[~df["lesion_id"].isin(val_lesions)]</code></pre>
         The backbone is <strong>EfficientNet-B0</strong> (Tan &amp; Le, 2019),
         initialised from ImageNet-1k weights with its classification head
         removed. B0 is the smallest member of the family at roughly 5.3 million
-        parameters — chosen so the full protocol trains inside the session and
+        parameters, chosen so the full protocol trains inside the session and
         memory limits of a free Kaggle GPU notebook, which is a reproducibility
         requirement rather than a performance compromise.
       </p>
@@ -340,7 +337,7 @@ outputs = Dense(7, activation="softmax")(x)</code></pre>
         <p>
           When the backbone is unfrozen without protecting these layers, the
           running statistics accumulated over ImageNet are overwritten by
-          statistics computed from HAM10000 batches — batches that are small
+          statistics computed from HAM10000 batches, batches that are small
           (32), oversampled, and drawn from a narrow visual domain. Every
           downstream activation is then rescaled against unstable estimates,
           and validation loss diverges within a few epochs while training loss
@@ -354,7 +351,7 @@ outputs = Dense(7, activation="softmax")(x)</code></pre>
           <span class="rq-num">1</span>
           <div>
             <p class="rq-q"><code>base(inputs, training=False)</code> at construction</p>
-            <p class="rq-a">Pins the backbone's BatchNorm layers to inference behaviour permanently — they normalise using stored ImageNet statistics regardless of the surrounding training context. This flag controls <em>behaviour</em>, and is independent of <code>trainable</code>, which controls <em>weight updates</em>. Conflating the two is the usual source of confusion.</p>
+            <p class="rq-a">Pins the backbone's BatchNorm layers to inference behaviour permanently, they normalise using stored ImageNet statistics regardless of the surrounding training context. This flag controls <em>behaviour</em>, and is independent of <code>trainable</code>, which controls <em>weight updates</em>. Conflating the two is the usual source of confusion.</p>
           </div>
         </li>
         <li>
@@ -407,7 +404,7 @@ for layer in base.layers:
         The stock Keras callbacks could not be used. In the installed version,
         the checkpoint and learning-rate-schedule path performs a deep copy of
         callback state that fails on this model, because the wrapped
-        EfficientNet backbone holds references that are not copyable — the run
+        EfficientNet backbone holds references that are not copyable, the run
         crashes at the first save attempt. Both callbacks were therefore
         reimplemented.
       </p>
@@ -418,7 +415,7 @@ for layer in base.layers:
           <ul>
             <li>Writes both a <em>best</em> and a <em>last</em> model every epoch.</li>
             <li>Serialises a small JSON state file recording epochs completed, the best monitored value, the current learning rate, and the epoch's logs.</li>
-            <li>Holds scalar state only — nothing that would be deep-copied.</li>
+            <li>Holds scalar state only, nothing that would be deep-copied.</li>
             <li>On <code>--resume</code>, reloads the last model, restores the learning rate, and continues from the recorded epoch.</li>
           </ul>
         </div>
@@ -428,7 +425,7 @@ for layer in base.layers:
             <li>Monitors validation loss with a minimum-improvement threshold of 1e-4.</li>
             <li>After 3 epochs without improvement, halves the learning rate.</li>
             <li>Floors the rate at 1e-6.</li>
-            <li>Tracks only two scalars — best value and wait counter — so it is safe to serialise and restore.</li>
+            <li>Tracks only two scalars (best value and wait counter) so it is safe to serialise and restore.</li>
           </ul>
         </div>
       </div>
@@ -448,10 +445,10 @@ for layer in base.layers:
         the Kaggle dataset layout and are overridable by environment variable,
         so the same code executes locally without modification.
       </p>
-      <pre class="code"><code># Stage 1 — linear probing
+      <pre class="code"><code># Stage 1 (linear probing
 python -m dermai.train --stage lp
 
-# Stage 2 — fine-tuning, from the best LP checkpoint
+# Stage 2) fine-tuning, from the best LP checkpoint
 python -m dermai.train --stage ft
 
 # Resume either stage after an interrupted session

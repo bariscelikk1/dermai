@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Results — DermAI</title>
+<title>Results · DermAI</title>
 <meta name="description" content="Evaluation protocol, primary and secondary endpoints, and guidance on interpreting reported performance.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -79,8 +76,8 @@
         <li>
           <strong>Natural class distribution retained.</strong> Oversampling is
           applied to the training split only. The validation split preserves
-          the true prevalence — including melanocytic nevi at roughly
-          two-thirds of all cases — so metrics reflect the distribution a
+          the true prevalence (including melanocytic nevi at roughly
+          two-thirds of all cases) so metrics reflect the distribution a
           deployed system would actually meet.
         </li>
         <li>
@@ -123,7 +120,7 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
           <tr>
             <td>Malignant-group recall</td>
             <td>Sensitivity across <code>mel</code>, <code>bcc</code> and <code>akiec</code> treated as one positive class.</td>
-            <td>Closer to the deployed decision — the tool aggregates these three — but obscures which malignancy was detected.</td>
+            <td>Closer to the deployed decision (the tool aggregates these three) but obscures which malignancy was detected.</td>
           </tr>
           <tr>
             <td>Macro-averaged F1</td>
@@ -185,7 +182,7 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
           accuracy figure quoted for this dataset must be read against that
           floor, and a figure in the high nineties is far less impressive than
           it sounds unless accompanied by per-class recall. This project
-          reports accuracy because omitting it would look evasive — not because
+          reports accuracy because omitting it would look evasive, not because
           it is the number that matters.
         </p>
       </div>
@@ -212,38 +209,38 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
         <tbody>
           <tr class="row-highlight">
             <td><code>mel</code> Melanoma <span class="pill pill-mal">Primary</span></td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>bcc</code> Basal cell carcinoma</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>akiec</code> Actinic keratoses / intraepithelial carcinoma</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>nv</code> Melanocytic nevi</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>bkl</code> Benign keratosis-like lesions</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>df</code> Dermatofibroma</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
           <tr>
             <td><code>vasc</code> Vascular lesions</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
-            <td class="num" data-pending>—</td><td class="num" data-pending>—</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
+            <td class="num" data-pending>-</td><td class="num" data-pending>-</td>
           </tr>
         </tbody>
       </table>
@@ -262,7 +259,7 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
       <p class="lede">
         Rows are true classes, columns are predictions. The cells that carry
         the most clinical weight are those in the melanoma row that fall
-        outside the melanoma column — each represents a melanoma the system
+        outside the melanoma column, each represents a melanoma the system
         failed to flag.
       </p>
       <div class="cm-wrap">
@@ -286,7 +283,7 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
       </div>
       <p class="table-src">
         Awaiting population from <code>outputs/confusion_matrix.npy</code>.
-        Shaded cells on the melanoma row denote false negatives — the error
+        Shaded cells on the melanoma row denote false negatives, the error
         class this project is specifically designed to minimise.
       </p>
 
@@ -312,7 +309,7 @@ python -m dermai.evaluate --model checkpoints/lp_best.keras</code></pre>
           Performance measured on the same split that selected the checkpoint
           is optimistically biased. A truly held-out test set, or external
           validation on an independent archive such as ISIC or DERM12345, would
-          be required for an unbiased estimate — and is the natural next step
+          be required for an unbiased estimate, and is the natural next step
           for this work.
         </li>
         <li>

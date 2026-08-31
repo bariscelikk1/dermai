@@ -3,11 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Clinical Context — DermAI</title>
+<title>Clinical Context · DermAI</title>
 <meta name="description" content="Skin cancer epidemiology worldwide and in Türkiye, the melanoma survival gradient, and the diagnostic role of dermoscopy.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -89,7 +86,7 @@
         aggressive, simply because it is roughly four times as common. Both
         categories are represented in the classification scheme used here:
         basal cell carcinoma appears as <code>bcc</code>, and actinic keratoses
-        and intraepithelial carcinoma — precursors on the squamous pathway — as
+        and intraepithelial carcinoma (precursors on the squamous pathway) as
         <code>akiec</code>.
       </p>
 
@@ -97,7 +94,7 @@
         <p class="callout-label">Modifiable aetiology</p>
         <p>
           IARC attributes more than 80% of cutaneous melanoma worldwide to
-          ultraviolet radiation exposure — approximately 267,000 of the roughly
+          ultraviolet radiation exposure, approximately 267,000 of the roughly
           332,000 cases recorded in 2022. This matters for a screening
           argument: the disease is both largely preventable and, when caught
           early, largely curable. The dominant failure mode is late
@@ -149,7 +146,7 @@
         life expectancy with respect to that disease. The same disease
         identified after distant metastasis carries roughly a one-in-three
         five-year survival. The interval separating those two states is a
-        window in which a diagnosis can be made — and it is precisely that
+        window in which a diagnosis can be made, and it is precisely that
         window a screening aid is intended to widen.
       </p>
       <blockquote class="pull">
@@ -191,13 +188,13 @@
           </tr>
         </tbody>
       </table>
-      <p class="table-src">Source: T.C. Sağlık Bakanlığı, Halk Sağlığı Genel Müdürlüğü — Türkiye Kanser İstatistikleri.</p>
+      <p class="table-src">Source: T.C. Sağlık Bakanlığı, Halk Sağlığı Genel Müdürlüğü, Türkiye Kanser İstatistikleri.</p>
 
       <p class="lede">
         Approximately 20,000 people receive a non-melanoma skin cancer
         diagnosis in Türkiye each year. Melanoma incidence is lower than in
         northern European or Australasian populations, which is consistent with
-        the protective effect of higher average Fitzpatrick phototype — but
+        the protective effect of higher average Fitzpatrick phototype, but
         lower incidence is not lower stakes. Populations with lower baseline
         risk often have correspondingly lower clinical suspicion, and later
         presentation is a recognised consequence.
@@ -209,7 +206,7 @@
           Figures circulating in the Turkish press describe a very large
           proportional rise in melanoma incidence over recent decades. Such
           increases are real in many registries but are confounded by improved
-          case ascertainment and registry coverage — a portion of any measured
+          case ascertainment and registry coverage, so a portion of any measured
           rise reflects better counting rather than more disease. This project
           does not rely on trend claims; the static incidence figures above,
           drawn directly from the national registry, are sufficient to motivate
@@ -223,9 +220,8 @@
       <h2>Dermoscopy, and why the input distribution matters</h2>
       <p class="lede">
         A dermatoscope is a handheld instrument combining magnification with
-        polarised or immersion illumination. It renders subsurface structures —
-        pigment networks, streaks, globules, blue-white veils, vascular
-        patterns — that are simply not visible to the unaided eye. Every image
+        polarised or immersion illumination. It renders subsurface structures, pigment networks, streaks, globules, blue-white veils, vascular
+        patterns that are simply not visible to the unaided eye. Every image
         in the HAM10000 training set was acquired this way.
       </p>
 
@@ -263,7 +259,7 @@
           Because the model has only ever seen dermoscopic images, an ordinary
           smartphone photograph of a mole is an <em>out-of-distribution</em>
           input. The network will still emit a confident-looking probability
-          distribution — softmax always sums to one — but that confidence is
+          distribution (softmax always sums to one) but that confidence is
           not calibrated for an input type the model never encountered in
           training. This is the single most important practical limitation of
           the deployed tool, and it is stated again on the
@@ -286,7 +282,7 @@
       <div class="abcde">
         <article><span class="ab-l">A</span><div><p class="ab-t">Asymmetry</p><p class="ab-d">One half of the lesion does not mirror the other.</p></div></article>
         <article><span class="ab-l">B</span><div><p class="ab-t">Border</p><p class="ab-d">Edges are irregular, notched, scalloped or poorly defined.</p></div></article>
-        <article><span class="ab-l">C</span><div><p class="ab-t">Colour</p><p class="ab-d">Multiple shades — browns, blacks, reds, whites or blues — within one lesion.</p></div></article>
+        <article><span class="ab-l">C</span><div><p class="ab-t">Colour</p><p class="ab-d">Multiple shades (browns, blacks, reds, whites or blues) within one lesion.</p></div></article>
         <article><span class="ab-l">D</span><div><p class="ab-t">Diameter</p><p class="ab-d">Larger than about 6 mm, though melanomas can be detected smaller.</p></div></article>
         <article><span class="ab-l">E</span><div><p class="ab-t">Evolving</p><p class="ab-d">Change over time in size, shape, colour, elevation, or new symptoms such as bleeding or itching.</p></div></article>
       </div>
@@ -317,7 +313,7 @@
         prospective clinical populations, where prevalence, image quality and
         case mix all differ. Second, the same authors' later work on
         human–computer collaboration found the productive configuration to be
-        the clinician <em>supported</em> by the algorithm — not replaced by it.
+        the clinician <em>supported</em> by the algorithm, not replaced by it.
       </p>
       <div class="callout">
         <p class="callout-label">The intended role</p>
