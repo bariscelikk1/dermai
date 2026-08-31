@@ -209,6 +209,16 @@ def predict(file: UploadFile = File(...)):
     }
 
 
+# Vercel rewrites every /api/* request to /api/index and hands the function
+# the rewritten path, not the one the browser asked for — so the app sees
+# "/api/index" for both endpoints and matches neither. Registering the same
+# two handlers there as well keeps the real paths working locally and under
+# `vercel dev`, and the methods stay unambiguous: health is the only GET,
+# prediction the only POST.
+app.add_api_route("/api/index", health, methods=["GET"])
+app.add_api_route("/api/index", predict, methods=["POST"])
+
+
 # Locally this process serves the site as well as the API, so uvicorn alone
 # is enough to run the whole thing. On Vercel the pages come off the CDN and
 # public/ is never copied into the function — and StaticFiles raises on
