@@ -19,6 +19,3 @@ models/*
 
 # personal learning notes — never publish
 HANDOFF.md
-
-# local editor/tooling config — keep the public repo free of it
-.claude/
