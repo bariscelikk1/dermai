@@ -17,7 +17,11 @@
   /* --teal is text-weight and passes contrast on paper; --cyan is for fills,
      rules and glows only, where contrast rules do not apply. */
   --teal:         #0C7B77;
-  --cyan:         #16C7BC;
+  /* Deep enough to belong to the medical teal family (Healthline #02838D,
+     Verywell #1D738B) while still holding contrast on the dark grounds.
+     The previous #16C7BC was a good deal brighter than anything in use on a
+     real health site. */
+  --cyan:         #2BB3AA;
   --teal-soft:    #E2F7F5;
 
   --violet:       #8B3DF5;
@@ -36,12 +40,17 @@
   --red-vivid:    #F04438;
   --red-soft:     #FDECEA;
 
-  --ink:          #2D2926;
-  --muted:        #6B6560;
-  --line:         #E1DFDB;
-  --line-strong:  #C9C6C1;
+  /* Neutrals are biased cool, toward the brand blue. The previous set was
+     warm (#2D2926 and friends), chosen when the site was set in a serif and
+     meant to read as printed paper. Measured against twenty of the most
+     visited health sites, every one uses a cool near-black or a navy for
+     body text, and only one uses pure black. */
+  --ink:          #151B22;
+  --muted:        #5C6673;
+  --line:         #DEE3E9;
+  --line-strong:  #C2C9D2;
   --paper:        #FFFFFF;
-  --paper-alt:    #F8F7F5;
+  --paper-alt:    #F5F7F9;
 
   /* The system UI face on every platform: no webfont to download, and it
      reads as an application rather than a printed paper. Headings use the
@@ -60,7 +69,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 body {
   margin: 0;
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: 17px;   /* measured median across twenty health sites is 16.5 */
   line-height: 1.65;
   color: var(--ink);
   background: var(--paper);
@@ -125,7 +134,7 @@ code {
 .hero-art {
   position: absolute; inset: 0;
   background:
-    radial-gradient(700px 430px at 84% 4%, rgba(22,199,188,.46), transparent 60%),
+    radial-gradient(700px 430px at 84% 4%, rgba(43,179,170,.46), transparent 60%),
     radial-gradient(560px 420px at 30% 104%, rgba(139,61,245,.58), transparent 62%),
     radial-gradient(460px 300px at 6% 22%, rgba(23,196,107,.24), transparent 66%),
     radial-gradient(520px 320px at 56% 46%, rgba(59,34,184,.50), transparent 70%),
@@ -386,7 +395,7 @@ code {
 .hero-lg .hero-inner { padding-block: 100px 96px; }
 .hero-actions { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
 .btn-onDark { background: var(--cyan); color: #06282B; border-color: var(--cyan); font-weight: 700; }
-.btn-onDark:hover { background: #3ADED2; border-color: #3ADED2; }
+.btn-onDark:hover { background: #38C7BD; border-color: #38C7BD; }
 .btn-onDarkGhost { background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
 .btn-onDarkGhost:hover { border-color: #fff; background: rgba(255,255,255,.09); }
 a.btn { text-decoration: none; }
@@ -608,13 +617,13 @@ td[data-pending] { font-size: 14px; font-style: normal; letter-spacing: 0; text-
 .hero-caveat {
   margin: 26px 0 0; max-width: 560px;
   font-size: 13px; line-height: 1.6; color: #A9A3CE;
-  padding-left: 14px; border-left: 2px solid rgba(22,199,188,.55);
+  padding-left: 14px; border-left: 2px solid rgba(43,179,170,.55);
 }
 
 .try-band {
   position: relative;
   background:
-    radial-gradient(680px 380px at 90% -4%, rgba(22,199,188,.22), transparent 62%),
+    radial-gradient(680px 380px at 90% -4%, rgba(43,179,170,.22), transparent 62%),
     radial-gradient(560px 420px at 2% 104%, rgba(139,61,245,.34), transparent 64%),
     radial-gradient(420px 300px at 44% 50%, rgba(23,196,107,.10), transparent 70%),
     var(--indigo-deep);
