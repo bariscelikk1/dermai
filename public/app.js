@@ -109,6 +109,26 @@ fileInput.addEventListener("change", () => {
   if (fileInput.files[0]) handleFile(fileInput.files[0]);
 });
 
+/* Sample lesions. A visitor almost never has a dermoscopic image to hand, so
+   the tool is unusable without these. All four are held-out validation
+   lesions: the model never trained on them, so the demo is honest. */
+document.querySelectorAll(".sample").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const src = btn.dataset.src;
+    btn.classList.add("is-loading");
+    try {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error("Could not load that sample image.");
+      const blob = await res.blob();
+      handleFile(new File([blob], src.split("/").pop(), { type: "image/jpeg" }));
+    } catch (err) {
+      fail(err.message || "Could not load that sample image.");
+    } finally {
+      btn.classList.remove("is-loading");
+    }
+  });
+});
+
 ["dragenter", "dragover"].forEach((ev) =>
   dropzone.addEventListener(ev, (e) => {
     e.preventDefault();

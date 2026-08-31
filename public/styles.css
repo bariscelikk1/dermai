@@ -685,3 +685,47 @@ td[data-pending] { font-size: 14px; font-style: normal; letter-spacing: 0; text-
   .try-band { padding-block: 52px 60px; }
   .try-panel { padding: 24px 20px 28px; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Sample lesions
+
+   Nobody arrives with a dermoscopic image, so without these the analyser
+   is a box that cannot be used. Every sample is a held-out validation
+   lesion with a histopathology-confirmed diagnosis.
+   ═══════════════════════════════════════════════════════════ */
+
+.samples { margin-top: 26px; padding-top: 24px; border-top: 1px solid var(--line); }
+.samples-lead { margin: 0 0 18px; font-size: 14.5px; line-height: 1.6; color: var(--muted); max-width: 68ch; }
+
+.sample-row {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px;
+}
+
+.sample {
+  display: block; width: 100%; padding: 0; cursor: pointer; text-align: left;
+  background: var(--paper); border: 1px solid var(--line-strong);
+  font: inherit; color: inherit;
+  transition: border-color .12s ease, transform .12s ease;
+}
+.sample:hover { border-color: var(--teal); transform: translateY(-2px); }
+.sample:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+.sample.is-loading { opacity: .55; cursor: progress; }
+
+.sample img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.sample-dx {
+  display: block; padding: 10px 12px 0; font-size: 13.5px; font-weight: 600; color: var(--ink);
+}
+.sample-id {
+  display: block; padding: 1px 12px 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px; color: var(--muted);
+}
+
+.samples-credit { margin: 16px 0 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+.samples-credit a { color: var(--indigo); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sample { transition: none; }
+  .sample:hover { transform: none; }
+}

@@ -80,6 +80,34 @@
       </div>
 
       <p id="uploadError" class="field-error" hidden></p>
+
+      <div class="samples">
+        <p class="samples-lead">
+          No dermoscopic image to hand? Run one of these. All four are held-out
+          validation lesions the model never saw during training, and all four
+          diagnoses were confirmed by histopathology.
+        </p>
+        <ul class="sample-row">
+          <li><button type="button" class="sample" data-src="/samples/ISIC_0026993.jpg" data-label="Melanoma, lower extremity">
+            <img src="/samples/ISIC_0026993.jpg" alt="Dermoscopic image of a melanoma on the lower extremity">
+            <span class="sample-dx">Melanoma</span><span class="sample-id">ISIC_0026993</span></button></li>
+          <li><button type="button" class="sample" data-src="/samples/ISIC_0032384.jpg" data-label="Basal cell carcinoma, trunk">
+            <img src="/samples/ISIC_0032384.jpg" alt="Dermoscopic image of a basal cell carcinoma on the trunk">
+            <span class="sample-dx">Basal cell carcinoma</span><span class="sample-id">ISIC_0032384</span></button></li>
+          <li><button type="button" class="sample" data-src="/samples/ISIC_0031753.jpg" data-label="Benign keratosis, trunk">
+            <img src="/samples/ISIC_0031753.jpg" alt="Dermoscopic image of a benign keratosis-like lesion on the trunk">
+            <span class="sample-dx">Benign keratosis</span><span class="sample-id">ISIC_0031753</span></button></li>
+          <li><button type="button" class="sample" data-src="/samples/ISIC_0029214.jpg" data-label="Melanocytic nevus, trunk">
+            <img src="/samples/ISIC_0029214.jpg" alt="Dermoscopic image of a melanocytic nevus on the trunk">
+            <span class="sample-dx">Melanocytic nevus</span><span class="sample-id">ISIC_0029214</span></button></li>
+        </ul>
+        <p class="samples-credit">
+          Images from the ISIC Archive, HAM10000 collection, contributed by the
+          MILK study team and licensed CC BY-NC 4.0. Dataset:
+          <a href="/references.html#ham10000">Tschandl, Rosendahl &amp; Kittler (2018)</a>.
+        </p>
+      </div>
+
     </section>
 
     <section id="scanStep" class="step" hidden>
