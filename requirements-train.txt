@@ -1,0 +1,14 @@
+# Training and evaluation dependencies — for running src/dermai locally or
+# on Kaggle. NOT named requirements.txt on purpose: Vercel's Python builder
+# installs any requirements.txt it finds at the project root, which pulled
+# full TensorFlow into the deployed function and pushed the bundle to
+# 2229 MB against a 500 MB limit. The deployed function installs from
+# api/requirements.txt instead, which carries inference dependencies only.
+tensorflow>=2.19
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.4
+matplotlib>=3.8
+seaborn>=0.13
+Pillow>=10.0
+kaggle>=1.6

@@ -39,8 +39,14 @@ src/dermai/
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-train.txt
 ```
+
+Training dependencies live in `requirements-train.txt`, not `requirements.txt`:
+Vercel installs any root `requirements.txt` into the deployed function, and
+TensorFlow alone is far larger than the 500 MB function limit. The deployed
+function installs from `api/requirements.txt`, which carries LiteRT and
+nothing else it does not need.
 
 ### Get the data
 
