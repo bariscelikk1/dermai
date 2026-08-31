@@ -50,7 +50,7 @@ def oversample(train_df: pd.DataFrame) -> pd.DataFrame:
     """Duplicate minority-class rows until each class reaches
     OVERSAMPLE_TARGET_FRACTION of the majority class count.
 
-    This replaced class_weight, which failed to converge at 58:1 —
+    This replaced class_weight, which failed to converge at 58:1,
     extreme weights make the df/vasc gradients dominate early updates.
     Duplicated rows get independent augmentation each epoch, so the
     effective inputs differ even though source pixels repeat.
@@ -86,7 +86,7 @@ def _decode(path, label):
     img = tf.io.read_file(path)
     img = tf.image.decode_jpeg(img, channels=3)
     img = tf.image.resize(img, [config.IMG_SIZE, config.IMG_SIZE])
-    # EfficientNet includes its own input scaling layer — keep raw [0, 255]
+    # EfficientNet includes its own input scaling layer, so keep raw [0, 255]
     return img, label
 
 

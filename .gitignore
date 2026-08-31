@@ -17,5 +17,5 @@ models/*
 !models/best_model_ft.tflite
 .venv/
 
-# personal learning notes — never publish
+# personal learning notes, never publish
 HANDOFF.md

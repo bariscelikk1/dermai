@@ -1,7 +1,7 @@
 """Evaluate a trained checkpoint on the validation split.
 
 Reports overall accuracy, the per-class classification report, a confusion
-matrix, and melanoma recall — the primary clinical metric (a missed
+matrix, and melanoma recall, the primary clinical metric (a missed
 melanoma is far costlier than a false alarm).
 
 Usage:

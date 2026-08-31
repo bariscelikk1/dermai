@@ -25,7 +25,7 @@ def build_model() -> tf.keras.Model:
 
     inputs = tf.keras.Input(shape=(config.IMG_SIZE, config.IMG_SIZE, 3))
     # training=False pins BatchNorm to inference mode permanently for the
-    # backbone — required both while frozen and during fine-tuning.
+    # backbone, required both while frozen and during fine-tuning.
     x = base(inputs, training=False)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
     x = tf.keras.layers.Dropout(0.3)(x)

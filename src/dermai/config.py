@@ -20,7 +20,7 @@ IMAGE_DIRS = [
     DATA_DIR / "ham10000_images_part_2",
 ]
 
-# Checkpoints must live somewhere writable — on Kaggle that's /kaggle/working,
+# Checkpoints must live somewhere writable. On Kaggle that's /kaggle/working,
 # which is session-temporary; the resume logic in callbacks.py exists
 # precisely because of that constraint.
 WORK_DIR = Path(os.environ.get("DERMAI_WORK_DIR", "checkpoints"))
@@ -38,11 +38,11 @@ BATCH_SIZE = 32
 SEED = 42
 VAL_FRACTION = 0.15     # split at lesion level to avoid leakage
 
-# Stage 1 — Linear Probing (frozen backbone, train classifier head)
+# Stage 1: Linear Probing (frozen backbone, train classifier head)
 LP_EPOCHS = 10
 LP_LR = 1e-3
 
-# Stage 2 — Fine-Tuning (unfreeze backbone, BatchNorm layers stay frozen)
+# Stage 2: Fine-Tuning (unfreeze backbone, BatchNorm layers stay frozen)
 FT_EPOCHS = 30
 FT_LR = 1e-4
 

@@ -10,7 +10,7 @@ because it only runs models, it cannot train them. The conversion cost is a
 shift of ~0.01 in the reported probabilities, which never changed the top
 class in testing.
 
-Preprocessing here mirrors `dermai.data._decode` exactly — decode to RGB,
+Preprocessing here mirrors `dermai.data._decode` exactly: decode to RGB,
 bilinear resize to 224x224, and keep pixels in the raw [0, 255] range,
 because EfficientNet carries its own rescaling layer. Normalising here
 would double-scale the input and silently wreck the predictions.
@@ -210,7 +210,7 @@ def predict(file: UploadFile = File(...)):
 
 
 # Vercel rewrites every /api/* request to /api/index and hands the function
-# the rewritten path, not the one the browser asked for — so the app sees
+# the rewritten path, not the one the browser asked for, so the app sees
 # "/api/index" for both endpoints and matches neither. Registering the same
 # two handlers there as well keeps the real paths working locally and under
 # `vercel dev`, and the methods stay unambiguous: health is the only GET,
@@ -221,7 +221,7 @@ app.add_api_route("/api/index", predict, methods=["POST"])
 
 # Locally this process serves the site as well as the API, so uvicorn alone
 # is enough to run the whole thing. On Vercel the pages come off the CDN and
-# public/ is never copied into the function — and StaticFiles raises on
+# public/ is never copied into the function, and StaticFiles raises on
 # construction when its directory is missing, which crashed the function at
 # import time before it could answer anything. Mount only if the directory
 # is actually there.

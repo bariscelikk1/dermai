@@ -22,7 +22,7 @@ class ResumableCheckpoint(tf.keras.callbacks.Callback):
     """Save best + last model every epoch, plus a JSON training-state file.
 
     State file records: last completed epoch, best monitored value, and the
-    current learning rate — everything needed to resume mid-run.
+    current learning rate: everything needed to resume mid-run.
     """
 
     def __init__(self, stage: str, monitor: str = "val_accuracy", mode: str = "max"):
@@ -72,7 +72,7 @@ class ResumableCheckpoint(tf.keras.callbacks.Callback):
 class SimpleReduceLROnPlateau(tf.keras.callbacks.Callback):
     """Halve the LR when the monitored metric stops improving.
 
-    Scalar state only — no config deepcopy, safe under Keras 2.19.
+    Scalar state only, so no config deepcopy. Safe under Keras 2.19.
     """
 
     def __init__(

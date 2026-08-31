@@ -1,4 +1,4 @@
-# DermAI — Web Interface
+# DermAI Web Interface
 
 A clinical-style web front end for the trained DermAI classifier. Upload a
 dermoscopic image, watch the preprocessing pipeline run, and get a risk-banded
@@ -6,12 +6,12 @@ assessment with the full 7-class probability distribution.
 
 ## What it does
 
-1. **Upload** — drag-and-drop or file picker, processed in memory (never written to disk).
-2. **Analysis** — the six preprocessing/inference stages are shown as they run.
-3. **Assessment** — a green / amber / red risk band derived from the summed
+1. **Upload**: drag-and-drop or file picker, processed in memory (never written to disk).
+2. **Analysis**: the six preprocessing/inference stages are shown as they run.
+3. **Assessment**: a green / amber / red risk band derived from the summed
    probability of the malignant group (`mel`, `bcc`, `akiec`), plus melanoma
    probability called out separately and a full probability table.
-4. **Referral** — on amber or red, optional browser geolocation builds Google
+4. **Referral**: on amber or red, optional browser geolocation builds Google
    Maps and Apple Maps search links for nearby dermatologists and hospitals,
    alongside curated guidance links. Coordinates stay in the browser and are
    never sent to the server.
@@ -56,7 +56,7 @@ python3.12 -m venv .venv && .venv/bin/pip install -r webapp/requirements.txt
 
 That last point is the one that breaks silently if changed. EfficientNet carries
 its own rescaling layer internally, so normalising to `[0, 1]` here would
-double-scale the input — the model still returns confident-looking probabilities,
+double-scale the input. The model still returns confident-looking probabilities,
 they are just wrong.
 
 ## Limitations worth stating out loud

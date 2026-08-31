@@ -30,7 +30,7 @@ def _load_or_build(stage: str, resume: bool, ckpt: cb.ResumableCheckpoint):
     if stage == "lp":
         m = model_lib.build_model()
         model_lib.compile_model(m, config.LP_LR)
-    else:  # ft — starts from the best linear-probe checkpoint
+    else:  # ft, starts from the best linear-probe checkpoint
         lp_best = config.WORK_DIR / "lp_best.keras"
         if not lp_best.exists():
             raise SystemExit("Fine-tuning requires a completed LP stage (lp_best.keras missing)")

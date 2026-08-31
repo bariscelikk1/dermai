@@ -1,6 +1,6 @@
 # Dependencies for the deployed function. This must live at the repository
 # root: Vercel's Python builder installs the root requirements.txt, and
-# ignores one sitting next to the entry point — moving these into api/ meant
+# ignores one sitting next to the entry point. Moving these into api/ meant
 # nothing was installed at all and the function crashed importing fastapi.
 #
 # LiteRT rather than tensorflow-cpu: the full package installs to ~1.4 GB and

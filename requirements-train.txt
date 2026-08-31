@@ -1,4 +1,4 @@
-# Training and evaluation dependencies — for running src/dermai locally or
+# Training and evaluation dependencies, for running src/dermai locally or
 # on Kaggle. Deliberately not named requirements.txt: that name is claimed by
 # the deployed function's dependency list, and putting full TensorFlow there
 # pushed the Vercel bundle to 2229 MB against a 500 MB limit.
