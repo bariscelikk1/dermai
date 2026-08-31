@@ -209,9 +209,16 @@ def predict(file: UploadFile = File(...)):
     }
 
 
-@app.get("/")
-def index():
-    return FileResponse(STATIC / "index.html")
+# Locally this process serves the site as well as the API, so uvicorn alone
+# is enough to run the whole thing. On Vercel the pages come off the CDN and
+# public/ is never copied into the function — and StaticFiles raises on
+# construction when its directory is missing, which crashed the function at
+# import time before it could answer anything. Mount only if the directory
+# is actually there.
+if STATIC.is_dir():
 
+    @app.get("/")
+    def index():
+        return FileResponse(STATIC / "index.html")
 
-app.mount("/", StaticFiles(directory=STATIC), name="static")
+    app.mount("/", StaticFiles(directory=STATIC), name="static")
