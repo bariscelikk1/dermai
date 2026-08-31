@@ -1,5 +1,11 @@
 # DermAI — Deep Learning Skin Lesion Classifier
 
+### ▶ Try it live: **https://dermai-steel.vercel.app**
+
+Upload a dermoscopic image on the homepage and the model returns a full
+seven-class probability distribution. A research prototype, not a medical
+device — see [Ethics & Limitations](https://dermai-steel.vercel.app/ethics.html).
+
 7-class dermoscopic image classifier built on **HAM10000** (10,015 images) with
 **EfficientNetB0 transfer learning**, optimized for **melanoma recall** as the
 primary clinical metric.
