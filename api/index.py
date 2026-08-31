@@ -9,6 +9,9 @@ are served from the CDN, so a cold start (which loads TensorFlow and a
 import sys
 from pathlib import Path
 
+# The bundler decides what to ship by reading imports statically, and cannot
+# see a path inserted at runtime — so webapp/ is named in vercel.json's
+# includeFiles as well, or the function ships without it and dies on import.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from webapp.server import app  # noqa: E402

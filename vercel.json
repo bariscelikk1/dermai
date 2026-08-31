@@ -4,7 +4,7 @@
     "api/index.py": {
       "memory": 2048,
       "maxDuration": 120,
-      "includeFiles": "models/**"
+      "includeFiles": "{models,webapp}/**"
     }
   },
   "rewrites": [
