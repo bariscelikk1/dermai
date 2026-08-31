@@ -1,0 +1,16 @@
+# Dependencies for the deployed function. This must live at the repository
+# root: Vercel's Python builder installs the root requirements.txt, and
+# ignores one sitting next to the entry point — moving these into api/ meant
+# nothing was installed at all and the function crashed importing fastapi.
+#
+# LiteRT rather than tensorflow-cpu: the full package installs to ~1.4 GB and
+# Vercel rejects any function over 500 MB. LiteRT only runs models, which is
+# all this endpoint does, and installs in single-digit MB.
+#
+# Training and evaluation dependencies are in requirements-train.txt, and are
+# deliberately not named requirements.txt so they never reach the function.
+ai-edge-litert>=1.0
+fastapi>=0.110
+python-multipart>=0.0.9
+pillow>=10.0
+numpy>=1.26
