@@ -1,10 +1,10 @@
-# DermAI — Deep Learning Skin Lesion Classifier
+# DermAI: Deep Learning Skin Lesion Classifier
 
 ### ▶ Try it live: **https://dermai-steel.vercel.app**
 
 Upload a dermoscopic image on the homepage and the model returns a full
 seven-class probability distribution. A research prototype, not a medical
-device — see [Ethics & Limitations](https://dermai-steel.vercel.app/ethics.html).
+device. See [Ethics & Limitations](https://dermai-steel.vercel.app/ethics.html).
 
 7-class dermoscopic image classifier built on **HAM10000** (10,015 images) with
 **EfficientNetB0 transfer learning**, optimized for **melanoma recall** as the
@@ -17,8 +17,8 @@ Python · TensorFlow/Keras · EfficientNetB0 · Transfer Learning · Kaggle
 - **Two-stage LP-FT pipeline** (Linear Probing → Fine-Tuning, per Kumar et al. 2022):
   train the classifier head on a frozen backbone first, then fine-tune the whole
   network at a low learning rate. **BatchNormalization layers stay frozen during
-  fine-tuning** — unfreezing them lets HAM10000 batch statistics overwrite the
-  ImageNet running stats and causes validation loss to explode.
+  fine-tuning**. Unfreezing them lets HAM10000 batch statistics overwrite the
+  ImageNet running stats, and validation loss explodes.
 - **Custom Keras callbacks** (`ResumableCheckpoint`, `SimpleReduceLROnPlateau`)
   written from scratch to bypass a Keras 2.19 deepcopy incompatibility, while
   keeping full checkpoint/resume support under Kaggle's session-temporary
@@ -26,8 +26,8 @@ Python · TensorFlow/Keras · EfficientNetB0 · Transfer Learning · Kaggle
 - **58:1 class imbalance** (`nv` ≈ 6,705 vs `df` ≈ 115) handled via strategic
   oversampling of minority classes on the training split, replacing the naive
   `class_weight` approach that failed to converge.
-- **Lesion-level train/val split** — HAM10000 contains multiple images per
-  lesion; splitting at image level leaks near-duplicates into validation.
+- **Lesion-level train/val split**. HAM10000 contains multiple images per
+  lesion, so splitting at image level leaks near-duplicates into validation.
 
 ## Project layout
 
@@ -49,9 +49,9 @@ pip install -r requirements-train.txt
 ```
 
 Training dependencies live in `requirements-train.txt`. The root
-`requirements.txt` belongs to the deployed function — Vercel installs that
-file and no other — and lists LiteRT rather than TensorFlow, which alone is
-several times the 500 MB function limit.
+`requirements.txt` belongs to the deployed function, since Vercel installs
+that file and no other. It lists LiteRT rather than TensorFlow, which alone
+is several times the 500 MB function limit.
 
 ### Get the data
 
@@ -73,10 +73,10 @@ export DERMAI_WORK_DIR=/kaggle/working/checkpoints
 ```bash
 cd src
 
-# Stage 1 — Linear Probing (frozen backbone, ~10 epochs)
+# Stage 1: Linear Probing (frozen backbone, ~10 epochs)
 python -m dermai.train --stage lp
 
-# Stage 2 — Fine-Tuning (backbone unfrozen, BatchNorm frozen, ~30 epochs)
+# Stage 2: Fine-Tuning (backbone unfrozen, BatchNorm frozen, ~30 epochs)
 python -m dermai.train --stage ft
 
 # Resume after a killed Kaggle session
