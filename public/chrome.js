@@ -34,11 +34,16 @@ const PAGES = [
       <div class="wrap masthead">
         <a class="wordmark" href="/index.html">
           <span class="wordmark-mark" aria-hidden="true">
-            <svg viewBox="0 0 40 40" width="40" height="40">
-              <circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <circle cx="20" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
-              <circle cx="20" cy="20" r="2.5" fill="currentColor"/>
-              <path d="M20 2v6M20 32v6M2 20h6M32 20h6" stroke="currentColor" stroke-width="1.5"/>
+            <!-- A registration mark, not a gunsight. The ticks used to sit at
+                 N/S/E/W, which reads unambiguously as crosshairs: a poor
+                 metaphor for a cancer tool, where the patient becomes the
+                 target. On the diagonals, confined to the annulus, the same
+                 mark reads as optical calibration. -->
+            <svg viewBox="0 0 40 40" width="32" height="32">
+              <circle cx="20" cy="20" r="15.5" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="20" cy="20" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="20" cy="20" r="3" fill="currentColor"/>
+              <path d="M27.42 27.42L29.19 29.19M12.58 27.42L10.81 29.19M12.58 12.58L10.81 10.81M27.42 12.58L29.19 10.81" stroke="currentColor" stroke-width="2" stroke-linecap="butt"/>
             </svg>
           </span>
           <span class="wordmark-text">

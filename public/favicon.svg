@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Deliberately not the 40px mark scaled down. Three concentric elements
+       plus four ticks turn to mush below 24px, so the favicon keeps only the
+       silhouette that identifies it: ring and centre dot. -->
+  <rect width="16" height="16" fill="#150A3D"/>
+  <circle cx="8" cy="8" r="5.4" fill="none" stroke="#2BB3AA" stroke-width="1.6"/>
+  <circle cx="8" cy="8" r="2.1" fill="#2BB3AA"/>
+</svg>

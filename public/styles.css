@@ -55,7 +55,7 @@
   /* The system UI face on every platform: no webfont to download, and it
      reads as an application rather than a printed paper. Headings use the
      same family at a heavier weight instead of a separate display serif. */
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto,
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           "Helvetica Neue", Arial, sans-serif;
   --display: var(--sans);
 
@@ -78,7 +78,12 @@ body {
 
 .wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: 32px; }
 
-h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; color: var(--indigo); margin: 0; }
+/* Headings sit in ink, not in the brand violet. Every institution measured
+   does this (Mayo #080808, MSK #272524, NCI #1B1B1B); colouring every heading
+   is a product-marketing habit, and it spends the accent so completely that
+   violet stops meaning "this is interactive" anywhere else on the page. */
+h1, h2 { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
+h3     { font-family: var(--display); font-weight: 700; letter-spacing: -0.015em; color: var(--slate); margin: 0; }
 
 a { color: var(--indigo); }
 
@@ -130,27 +135,38 @@ code {
 
 /* ──────────────────────────── hero ──────────────────────── */
 
-.hero { position: relative; background: var(--indigo-deep); color: #fff; overflow: hidden; }
-.hero-art {
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(700px 430px at 84% 4%, rgba(43,179,170,.46), transparent 60%),
-    radial-gradient(560px 420px at 30% 104%, rgba(139,61,245,.58), transparent 62%),
-    radial-gradient(460px 300px at 6% 22%, rgba(23,196,107,.24), transparent 66%),
-    radial-gradient(520px 320px at 56% 46%, rgba(59,34,184,.50), transparent 70%),
-    linear-gradient(118deg, #14063A 0%, #2B0E7E 44%, #0C3D52 100%);
-}
+/* Interior pages open on content, not on a coloured band. Only the homepage
+   keeps a dark hero, and even there the five-layer gradient is gone: it was
+   the single most "marketing site" element on the project, and one of its
+   layers was tinted with the low-risk green, which is reserved for meaning. */
+.hero { position: relative; background: var(--paper); color: var(--ink); overflow: hidden;
+        border-bottom: 1px solid var(--line); }
+.hero::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--indigo); }
+.hero h1 { color: var(--ink); }
+.hero .eyebrow { color: var(--teal); }
+.hero-lede { color: var(--slate); }
+
+.hero-lg { background: var(--indigo-deep); color: #fff; border-bottom: 0; }
+.hero-lg::before { display: none; }
+.hero-lg h1 { color: #fff; }
+.hero-lg .eyebrow { color: var(--cyan); }
+.hero-lg .hero-lede { color: #DAD6F2; }
+/* Only rendered inside .hero-lg (the homepage). Flat ground, one faint rule
+   grid, nothing else. */
+.hero-art { position: absolute; inset: 0; background: var(--indigo-deep); }
+.hero:not(.hero-lg) .hero-art { display: none; }
 .hero-art::after {
   content: ""; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
-  background-size: 46px 46px;
-  mask-image: radial-gradient(circle at 70% 40%, #000 10%, transparent 78%);
+  background-image: linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 64px 100%;
 }
-.hero-inner { position: relative; padding: 82px 32px 78px; max-width: 900px; }
-.hero h1 { color: #fff; font-size: clamp(34px, 4.6vw, 54px); line-height: 1.12; letter-spacing: -0.028em; font-weight: 700; }
-.hero-lede { max-width: 620px; margin: 24px 0 0; font-size: 17px; line-height: 1.72; color: #DAD6F2; }
-.hero-lede strong { color: #fff; font-weight: 600; }
+.hero-inner { position: relative; padding: 56px 32px 40px; max-width: 900px; }
+/* Size and rhythm only. Colour is set by .hero / .hero-lg above, so the
+   flat interior hero and the dark homepage hero can differ without this
+   rule quietly re-asserting white over both. */
+.hero h1 { font-size: clamp(34px, 4.6vw, 54px); line-height: 1.12; letter-spacing: -0.028em; font-weight: 700; }
+.hero-lede { max-width: 620px; margin: 24px 0 0; font-size: 17px; line-height: 1.72; }
+.hero-lg .hero-lede strong { color: #fff; font-weight: 600; }
 
 /* ─────────────────────── breadcrumb / layout ────────────── */
 
@@ -179,12 +195,12 @@ code {
 .step { margin-bottom: 68px; scroll-margin-top: 110px; }
 .step h2 { font-size: clamp(27px, 3vw, 36px); line-height: 1.2; margin-bottom: 16px; }
 .sub { font-size: 20px; margin: 40px 0 14px; color: var(--slate); }
-.lede { font-size: 16.5px; color: #4A4540; max-width: 68ch; margin: 0 0 26px; }
+.lede { font-size: 16.5px; color: var(--slate); max-width: 68ch; margin: 0 0 26px; }
 .lede-tight { margin-bottom: 18px; }
 
 .notice { border: 1px solid var(--line-strong); border-left: 4px solid var(--red); background: var(--red-soft); padding: 22px 26px; margin-bottom: 52px; }
 .notice-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red); margin: 0 0 8px; }
-.notice p:last-child { margin: 0; font-size: 14.5px; line-height: 1.7; color: #4A3B3A; }
+.notice p:last-child { margin: 0; font-size: 14.5px; line-height: 1.7; color: var(--ink); }
 
 /* ────────────────────────── dropzone ────────────────────── */
 
@@ -280,7 +296,7 @@ code {
 .verdict.low .verdict-band      { color: var(--green); }
 .verdict.moderate .verdict-band { color: var(--amber); }
 .verdict.high .verdict-band     { color: var(--red); }
-.verdict-line { margin: 6px 0 0; font-size: 15.5px; color: #4A4540; }
+.verdict-line { margin: 6px 0 0; font-size: 15.5px; color: var(--slate); }
 
 .verdict-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,.1); }
 .metric-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
@@ -428,7 +444,7 @@ a.btn { text-decoration: none; }
 .callout-warn { border-left-color: var(--amber); background: var(--amber-soft); }
 .callout-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin: 0 0 8px; }
 .callout-warn .callout-label { color: var(--amber); }
-.callout p:last-child { margin: 0; font-size: 14.5px; line-height: 1.72; color: #44403C; }
+.callout p:last-child { margin: 0; font-size: 14.5px; line-height: 1.72; color: var(--ink); }
 
 .notice-info { border-left-color: var(--teal); background: var(--teal-soft); }
 .notice-info .notice-label { color: var(--teal); }
@@ -478,7 +494,7 @@ a.btn { text-decoration: none; }
 .sidebar-note { border: 1px solid var(--line); background: var(--paper-alt); padding: 16px 18px; margin-bottom: 22px; }
 .sidebar-note p { font-size: 12.5px; line-height: 1.65; color: var(--muted); margin: 0; }
 .sidebar-warn { border-left: 3px solid var(--amber); background: var(--amber-soft); }
-.sidebar-warn p { color: #5C4A20; }
+.sidebar-warn p { color: var(--ink); }
 
 /* survival chart */
 .survival { border-top: 1px solid var(--line); margin-bottom: 12px; }
@@ -507,7 +523,7 @@ a.btn { text-decoration: none; }
 .cmp-head { font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; margin: 0 0 12px; }
 .cmp-bad .cmp-head { color: var(--red); }
 .cmp-good .cmp-head { color: var(--green); }
-.cmp p:last-child { font-size: 14px; line-height: 1.7; color: #4A4540; margin: 0; }
+.cmp p:last-child { font-size: 14px; line-height: 1.7; color: var(--slate); margin: 0; }
 
 /* code blocks */
 .code { background: #14103A; color: #D6E4F0; padding: 22px 24px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; line-height: 1.7; margin: 0; }
@@ -521,7 +537,7 @@ a.btn { text-decoration: none; }
 .finding-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 8px; }
 .finding-neg .finding-label { color: var(--red); }
 .finding-pos .finding-label { color: var(--green); }
-.finding p:last-child { font-size: 14.5px; line-height: 1.72; color: #44403C; margin: 0; }
+.finding p:last-child { font-size: 14.5px; line-height: 1.72; color: var(--ink); margin: 0; }
 
 /* pipeline steps */
 .pipe-steps { list-style: none; margin: 0 0 26px; padding: 0; border-top: 1px solid var(--line); }
@@ -545,7 +561,7 @@ a.btn { text-decoration: none; }
 .ep-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--indigo); margin: 0 0 8px; }
 .endpoint h3 { font-size: 25px; margin-bottom: 10px; }
 .ep-formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; color: var(--slate); background: #fff; border: 1px solid var(--line-strong); padding: 10px 14px; display: inline-block; margin: 0 0 14px; }
-.endpoint p:last-child { font-size: 14.5px; line-height: 1.75; color: #44403C; margin: 0; }
+.endpoint p:last-child { font-size: 14.5px; line-height: 1.75; color: var(--ink); margin: 0; }
 
 /* result cards */
 .result-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 26px; }
@@ -625,7 +641,6 @@ td[data-pending] { font-size: 14px; font-style: normal; letter-spacing: 0; text-
   background:
     radial-gradient(680px 380px at 90% -4%, rgba(43,179,170,.22), transparent 62%),
     radial-gradient(560px 420px at 2% 104%, rgba(139,61,245,.34), transparent 64%),
-    radial-gradient(420px 300px at 44% 50%, rgba(23,196,107,.10), transparent 70%),
     var(--indigo-deep);
   color: #fff;
   padding-block: 72px 84px;
